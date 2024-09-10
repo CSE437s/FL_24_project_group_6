@@ -1,4 +1,4 @@
-# Project Name: Caret: Commenting on the Internt (Chrome Extension)
+# Project Name: Caret: Commenting on the Internet (Chrome Extension)
 ### Team members: Noah Gluck, Sophie Schochet, Sourav Mahanty, Ritika Tejwani
 ### TA: <Insert Here>
 
