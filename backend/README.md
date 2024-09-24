@@ -2,19 +2,19 @@ This is a basic CRUD backend in FastAPI attached to a postgres db running in Doc
 
 1. make sure you're using python 3.10+
 
-2. create a venv:
+2. create a venv in /backend:
    
     ```python3 -m venv .venv```
    
-4. activate the venv
+4. activate the venv in /backend
    
     ```source .venv/bin/activate```
 
-5. install the dependencies
+5. install the dependencies in /backend
 
    ```pip3 install -r requirements.txt```
 
-6. start the postgres container
+6. start the postgres container in /backend
 
     ```docker-compose up -d```
 
