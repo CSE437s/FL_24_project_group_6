@@ -1,5 +1,7 @@
 This is a basic CRUD backend in FastAPI attached to a postgres db running in Docker. 
 
+Initial Setup:
+
 1. make sure you're using python 3.10+
 
 2. create a venv in /backend:
@@ -23,3 +25,4 @@ This is a basic CRUD backend in FastAPI attached to a postgres db running in Doc
 8. start the app. you can go to http://localhost:8000/docs to see the docs.  
 
     ```uvicorn app.main:app --reload```
+
