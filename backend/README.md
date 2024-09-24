@@ -26,3 +26,13 @@ Initial Setup:
 
     ```uvicorn app.main:app --reload```
 
+If you already have everything installed:
+
+```docker-compose up -d```
+
+```uvicorn app.main:app --reload```
+
+
+
+
+
