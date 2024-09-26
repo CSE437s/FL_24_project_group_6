@@ -23,8 +23,8 @@ Initial Setup:
 7. optional: to get an admin view of the db, follow the setup in this article, starting from "create a server in pgAdmin" https://medium.com/@jewelski/quickly-set-up-a-local-postgres-database-using-docker-5098052a4726
 
 8. start the app. you can go to http://localhost:8000/docs to see the docs.  
-
-    ```uvicorn app.main:app --reload```
+uvicorn app.main:app --reload
+    ``````
 
 If you already have everything installed:
 
