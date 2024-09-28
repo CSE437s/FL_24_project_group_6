@@ -118,3 +118,21 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     return db_utils.create_user(db=db, user=user)
+
+@app.post("/users/{user_id}/comments/", response_model=schemas.Comment)
+def create_comment_for_user(
+    user_id: int, comment: schemas.CommentCreate, db: Session = Depends(get_db)
+):
+    return db_utils.create_user_comment(db=db, comment=comment, user_id=user_id)
+
+@app.get("/users/{user_id}/comments/", response_model=list[schemas.Comment])
+def get_comments_for_user(
+    user_id: int, db: Session = Depends(get_db)
+):
+    return db_utils.get_user_comments(db=db, user_id=user_id)
+
+@app.get("/comments/", response_model=list[schemas.Comment])
+def get_all_url_comments(
+    url: str, db: Session = Depends(get_db)
+):
+    return db_utils.get_comments_by_url(db=db, url=url)
