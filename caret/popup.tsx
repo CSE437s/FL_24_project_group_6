@@ -32,7 +32,7 @@ function IndexPopup() {
 
   // Handle the logout action
   const handleLogout = async () => {
-    console.log(await get_me())
+    await storage.set("access_token", "")
     setUsername("")
     setView("login")
   }
