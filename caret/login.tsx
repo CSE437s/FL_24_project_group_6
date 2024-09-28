@@ -1,7 +1,7 @@
 import { useState } from "react"
 
 interface LoginProps {
-  onLogin: (username: string) => void
+  onLogin: (username: string, password: string) => void
 }
 
 const Login = ({ onLogin }: LoginProps) => {
@@ -9,10 +9,10 @@ const Login = ({ onLogin }: LoginProps) => {
   const [password, setPassword] = useState("")
 
   const handleLogin = () => {
-    if (username) {
-      onLogin(username) // Call parent function to handle login
+    if (username && password) {
+      onLogin(username, password) // Call parent function to handle login
     } else {
-      alert("Please enter a username")
+      alert("Please ensure all fields are filled out")
     }
   }
 

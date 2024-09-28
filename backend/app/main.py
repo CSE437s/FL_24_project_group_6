@@ -3,6 +3,8 @@ from typing import Annotated
 from sqlalchemy.orm import Session
 from . import config
 from functools import lru_cache
+from fastapi.middleware.cors import CORSMiddleware
+
 
 
 import jwt
@@ -35,7 +37,17 @@ models.Base.metadata.create_all(bind=engine)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 app = FastAPI()
+origins = [
+    "*",
+]
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def create_access_token(settings: Annotated[config.Settings, Depends(get_settings)], data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
