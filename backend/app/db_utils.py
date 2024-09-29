@@ -4,6 +4,8 @@ from passlib.context import CryptContext
 
 from . import models, schemas
 
+## user utils
+
 def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
@@ -37,3 +39,17 @@ def verify_password(plain_password, hashed_password):
 
 def get_password_hash(password):
     return pwd_context.hash(password)
+
+## Comment utils
+def create_user_comment(db: Session, comment: schemas.CommentCreate, user_id: int):
+    db_comment = models.Comment(**comment.model_dump(), owner_id=user_id)
+    db.add(db_comment)
+    db.commit()
+    db.refresh(db_comment)
+    return db_comment
+
+def get_user_comments(db: Session, user_id: int):
+    return db.query(models.Comment).filter(models.Comment.owner_id == user_id)
+
+def get_comments_by_url(db: Session, url: str):
+    return db.query(models.Comment).filter(models.Comment.url == url)
