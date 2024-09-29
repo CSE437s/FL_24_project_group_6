@@ -11,7 +11,10 @@ class TokenData(BaseModel):
 class Comment(BaseModel):
     text: str
     url: str
-    location_on_page: str
+    css_selector: str
+    selected_text: str
+    text_offset_start: int
+    text_offset_end: int
 
 class CommentCreate(Comment):
     pass

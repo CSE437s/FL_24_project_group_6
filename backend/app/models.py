@@ -22,6 +22,9 @@ class Comment(Base):
     text = Column(String, index=True)
     owner_id = Column(Integer, ForeignKey("users.id"))
     url = Column(String, index=True)
-    location_on_page = Column(String, index=True)
+    css_selector = Column(String)
+    selected_text = Column(String)
+    text_offset_start = Column(Integer)
+    text_offset_end = Column(Integer)
 
     owner = relationship("User", back_populates="comments")

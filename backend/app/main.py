@@ -119,11 +119,11 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already registered")
     return db_utils.create_user(db=db, user=user)
 
-@app.post("/users/{user_id}/comments/", response_model=schemas.Comment)
-def create_comment_for_user(
-    user_id: int, comment: schemas.CommentCreate, db: Session = Depends(get_db)
+@app.post("/create_comment", response_model=schemas.Comment)
+def create_comment_for_current_user(
+    current_user: Annotated[schemas.User, Depends(get_current_active_user)], comment: schemas.CommentCreate, db: Session = Depends(get_db)
 ):
-    return db_utils.create_user_comment(db=db, comment=comment, user_id=user_id)
+    return db_utils.create_user_comment(db=db, comment=comment, user_id=current_user.id)
 
 @app.get("/users/{user_id}/comments/", response_model=list[schemas.Comment])
 def get_comments_for_user(
