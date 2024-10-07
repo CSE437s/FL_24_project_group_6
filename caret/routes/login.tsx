@@ -1,16 +1,14 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
-interface LoginProps {
-  onLogin: (username: string, password: string) => void
-}
-
-const Login = ({ onLogin }: LoginProps) => {
+export const Login = () => {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
+  const navigate = useNavigate();
 
   const handleLogin = () => {
     if (username && password) {
-      onLogin(username, password) // Call parent function to handle login
+      navigate("/home")
     } else {
       alert("Please ensure all fields are filled out")
     }
@@ -62,5 +60,3 @@ const Login = ({ onLogin }: LoginProps) => {
     </div>
   )
 }
-
-export default Login

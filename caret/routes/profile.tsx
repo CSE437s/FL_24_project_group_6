@@ -4,13 +4,10 @@ import { Button } from "@material-ui/core";
 import { ToggleButton } from "@material-ui/lab";
 import { useNavigate } from "react-router-dom";
 
-interface ProfileProps {
-    userName: string;
-}
-
-const Profile: React.FC<ProfileProps> = ({ userName }) => {
+export const Profile = () => {
     const [toggle1, setToggle1] = useState(false);
     const [toggle2, setToggle2] = useState(false);
+    const [username, setUsername] = useState("")
     const navigate = useNavigate();
 
     const handleHomeClick = () => {
@@ -20,12 +17,12 @@ const Profile: React.FC<ProfileProps> = ({ userName }) => {
     return (
         <div style={{ padding: "20px" }}>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <h1>Profile</h1>
+                <h1> {username} Profile</h1>
                 <Button variant="contained" color="primary" onClick={handleHomeClick}>
                     Home
                 </Button>
             </div>
-            <h2>{userName}</h2>
+            <h2>{username}</h2>
             <div>
                 <ToggleButton
                     value="check"
@@ -53,5 +50,3 @@ const Profile: React.FC<ProfileProps> = ({ userName }) => {
         </div>
     );
 };
-
-export default Profile;
