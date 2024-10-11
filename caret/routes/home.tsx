@@ -31,18 +31,6 @@ import { useState } from "react"
             }}>
             Go to Profile
         </button>
-          <button
-            onClick={() => navigate("/")} 
-            style={{
-              width: "100%",
-              padding: 10,
-              marginTop: 20,
-              backgroundColor: "blue",
-              color: "white",
-              cursor: "pointer",
-            }}>
-            Logout
-          </button>
         </div>
       )
 }

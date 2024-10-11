@@ -7,13 +7,19 @@ import { useNavigate } from "react-router-dom";
 export const Profile = () => {
     const [toggle1, setToggle1] = useState(false);
     const [toggle2, setToggle2] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [username, setUsername] = useState("")
     const navigate = useNavigate();
 
     const handleHomeClick = () => {
         navigate("/home");
     };
-
+    const handleLogout = () => {
+        localStorage.removeItem("token")
+        setUsername("")
+        setIsLoggedIn(false)
+        navigate("/");
+    };
     return (
         <div style={{ padding: "20px" }}>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -23,6 +29,11 @@ export const Profile = () => {
                 </Button>
             </div>
             <h2>{username}</h2>
+            <Button
+            variant = "contained"
+            onClick={handleLogout} >
+            Logout
+          </Button>
             <div>
                 <ToggleButton
                     value="check"
