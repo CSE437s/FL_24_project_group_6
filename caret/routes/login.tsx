@@ -1,62 +1,76 @@
+import React from "react";
+import axios from "axios";
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import {Button, TextField, Box, Typography, Link} from "@material-ui/core";
 
 export const Login = () => {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const navigate = useNavigate();
 
-  const handleLogin = () => {
+  const handleLogin = async() => {
     if (username && password) {
-      navigate("/home")
+      const formData = new FormData()
+      formData.append('username', username)
+      formData.append('password', password)
+      await axios
+      .post("http://localhost:8000/token", formData)
+      .then(function (response) {
+        console.log(response.data.token, "response.data.token")
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token)
+          navigate("/profile");
+        }
+      })
+      .catch(function (error) {
+        console.log(error, "error");
+      });
     } else {
       alert("Please ensure all fields are filled out")
     }
   }
-
+  const handleSignUpClick = () => {
+    navigate("/signup");
+};
   return (
-    <div style={{ padding: 40, width: 340 }}>
-      <h1 style={{ textAlign: "center" }}>Welcome to Caret</h1>
-      <h3 style={{ textAlign: "center" }}>Comments for the Internet</h3>
-
-      <input
-        type="text"
-        placeholder="Username"
+  <Box sx={{display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center"}}>
+    <form id = "loginForm">
+    <Typography component = "h1"> Welcome to Caret!
+      </Typography>
+      <Typography component = "h2"> Comments for the Internet!
+      </Typography>
+<TextField
+        id = "username"
+        label="Username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
-        style={{
-          width: "93%",
-          padding: 10,
-          marginTop: 20,
-        }}
+        variant = "outlined"
       />
 
-      <input
-        type="password"
-        placeholder="Password"
+      <TextField
+        id ="password"
+        label="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        style={{
-          width: "93%",
-          padding: 10,
-          marginTop: 20,
-        }}
+        variant = "outlined"
       />
-
-      <button
+       
+      <Button
         onClick={handleLogin}
-        style={{
-          width: "100%",
-          padding: 10,
-          marginTop: 20,
-          backgroundColor: "green",
-          color: "white",
-          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
-          cursor: "pointer",
-        }}
+        variant = "contained"
       >
         Login
-      </button>
-    </div>
+      </Button>
+      </form>
+      <Link
+      component="button"
+      variant="body2"
+      onClick={handleSignUpClick}
+>
+  
+ Don't have an account? Sign Up
+</Link>
+    </Box>
   )
 }
