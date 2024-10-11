@@ -1,18 +1,14 @@
 import { Navigate, useNavigate } from "react-router-dom"
 import { useState } from "react"
+import {Box} from "@material-ui/core"
 
-  export const Home = () => {
-    const [username, setUsername] = useState("")
+  export const Home = ({user}) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const navigate = useNavigate()
 
     return (
-        <div
-          style={{
-            padding: 40,
-            width: 340,
-          }}>
-          <h1>Welcome! {username} </h1>
+        <Box sx={{flexDirection: "column", justifyContent: "center", minWidth: 320, height: 500, padding: 20}}>
+          <h1>Welcome, {user} !</h1>
           <h3>Recent Comments: </h3>
   
           <div style={{ padding: 10, backgroundColor: "lightgreen", marginTop: 20 }}>
@@ -31,7 +27,7 @@ import { useState } from "react"
             }}>
             Go to Profile
         </button>
-        </div>
+        </Box>
       )
 }
 

@@ -13,21 +13,7 @@ function IndexPopup() {
     copiedKeyList: ["shield-modulation"], 
   })
 
-    // Handle the login action
-  const handleLogin = async (username: string, password: string) => {
-    try {
-      let response = await fetch_token(username, password)
-      let token = response.data["access_token"]
-      console.log(token)
-      await storage.set("access_token", token)
-      console.log("stored")
-    } catch {
-      console.log("log in error")
-    }
-
-    setUsername(username)
-  }
-
+ 
   // Handle the logout action
   const handleLogout = async () => {
     await storage.set("access_token", "")

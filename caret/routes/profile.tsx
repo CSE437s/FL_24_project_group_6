@@ -1,55 +1,37 @@
 import { useState } from "react" 
 import React from "react";
-import { Button } from "@material-ui/core";
+import { Button, Box } from "@material-ui/core";
 import { ToggleButton } from "@material-ui/lab";
 import { useNavigate } from "react-router-dom";
+import { Storage } from "@plasmohq/storage"
 
-export const Profile = () => {
-    const [toggle1, setToggle1] = useState(false);
-    const [toggle2, setToggle2] = useState(false);
+export const Profile = ({user}) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false)
-    const [username, setUsername] = useState("")
     const navigate = useNavigate();
-
+    const storage = new Storage({
+        copiedKeyList: ["shield-modulation"], 
+      })
+    
     const handleHomeClick = () => {
         navigate("/home");
     };
-    const handleLogout = () => {
+    const handleLogout = async() => {
         localStorage.removeItem("token")
-        setUsername("")
-        setIsLoggedIn(false)
+        await storage.set("access_token", "")
         navigate("/");
     };
     return (
-        <div style={{ padding: "20px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <h1> {username} Profile</h1>
+        <Box sx={{flexDirection: "column", justifyContent: "center", minWidth: 320, height: 500, padding: 20}}>
+                <h1> {user} Profile</h1>
                 <Button variant="contained" color="primary" onClick={handleHomeClick}>
                     Home
                 </Button>
-            </div>
-            <h2>{username}</h2>
+            <h2>{user}</h2>
             <Button
             variant = "contained"
             onClick={handleLogout} >
             Logout
           </Button>
-            <div>
-                <ToggleButton
-                    value="check"
-                    selected={toggle1}
-                    onChange={() => setToggle1(!toggle1)}
-                >
-                    Toggle 1
-                </ToggleButton>
-                <ToggleButton
-                    value="check"
-                    selected={toggle2}
-                    onChange={() => setToggle2(!toggle2)}
-                >
-                    Toggle 2
-                </ToggleButton>
-            </div>
             <Button
                 variant="contained"
                 color="secondary"
@@ -58,6 +40,6 @@ export const Profile = () => {
             >
                 Delete Account
             </Button>
-        </div>
-    );
-};
+        </Box>
+    )
+}

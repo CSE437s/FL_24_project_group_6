@@ -2,28 +2,27 @@ import React from "react";
 import axios from "axios";
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import {Button, TextField, Box, Typography} from "@material-ui/core";
-
+import { Storage } from "@plasmohq/storage"
+import {Button, TextField, Box, Typography} from "@material-ui/core"
   export const Signup = () => {
     const [username, setUsername] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const navigate = useNavigate()
-
+    const storage = new Storage({
+      copiedKeyList: ["shield-modulation"], 
+    })
     const handleSignup = async () => {
       if (email && username && password) {
-        const formData = new FormData()
-        formData.append("email", email)
-        formData.append('username', username)
-        formData.append('password', password)
+        const data = {username,email, password}
+        console.log(data)
         await axios
-        .post("http://localhost:8000/users/", formData)
+        .post("http://localhost:8000/users/", data )
         .then(function (response) {
           console.log(response.data.token, "response.data.token")
-          if (response.data.token) {
-            localStorage.setItem('token', response.data.token)
-            navigate("/profile");
-          }
+            storage.set("access_token", response.data.token)
+           console.log("stored")
+            navigate("/");
         })
         .catch(function (error) {
           console.log(error, "error");
@@ -33,7 +32,7 @@ import {Button, TextField, Box, Typography} from "@material-ui/core";
       }
     }
     return (
-    <Box sx={{display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center"}}>
+      <Box sx={{flexDirection: "column", justifyContent: "center", minWidth: 320, height: 500, padding: 20}}>
       <form id = "signinForm">
       <Typography component = "h1"> Create Your Caret Account!
         </Typography>
@@ -67,7 +66,7 @@ import {Button, TextField, Box, Typography} from "@material-ui/core";
           onClick={handleSignup}
           variant = "contained"
         >
-          Login
+          Sign Up
         </Button>
         </form>
       </Box>
