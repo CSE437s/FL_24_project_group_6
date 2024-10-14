@@ -6,6 +6,8 @@ const token_url = "http://localhost:8000/token"
 const me_url = "http://localhost:8000/users/me"
 const create_comment_url = "http://localhost:8000/create_comment"
 const get_coments_url = "http://localhost:8000/comments"
+const password_reset_request_url = "http://localhost:8000/password_reset_request/"
+const reset_password_url = "http://localhost:8000/reset-password/"
 
 
 export function fetch_token(username: string, password: string) {
@@ -24,6 +26,19 @@ export async function get_me() {
         headers: { Authorization: `Bearer ${access_token}` }
     };
     return axios.get(me_url, config)
+}
+
+export async function request_password_reset(email : string) {
+    return axios.post(password_reset_request_url, {email: email})
+}
+
+export async function reset_password(email : string, new_password : string, token : string, ) {
+    const data = {
+        email: email,
+        token: token,
+        new_password: new_password
+    }
+    return axios.post(reset_password_url, data)
 }
 
 

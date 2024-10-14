@@ -58,3 +58,5 @@ def update_password(db: Session, user: models.User, new_password: str):
     hashed_password = get_password_hash(new_password)
     user.hashed_password = hashed_password
     db.commit()
+    db.refresh(user)
+    return user

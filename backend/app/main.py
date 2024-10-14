@@ -162,7 +162,7 @@ def get_all_url_comments(
 ):
     return db_utils.get_comments_by_url(db=db, url=url)
 
-@app.post("/password-reset-request/")
+@app.post("/password_reset_request/")
 def password_reset_request(
     data: schemas.PasswordResetRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db), settings: config.Settings = Depends(get_settings), 
     
@@ -208,9 +208,7 @@ def reset_password(data: schemas.PasswordReset, db: Session = Depends(get_db), s
         raise HTTPException(status_code=400, detail="Email not found")
 
     # Hash the new password and update it in the database
-    hashed_password = db_utils.hash_password(data.new_password)
-    user.hashed_password = hashed_password
-    db.commit()
+    db_utils.update_password(db, user, data.new_password)
 
     # Generate a new access token for login after password reset
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
