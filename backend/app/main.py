@@ -186,7 +186,7 @@ def password_reset_request(
 
     return {"message": "Password reset token sent via email."}
 
-@app.post("/reset-password/")
+@app.post("/reset_password/")
 def reset_password(data: schemas.PasswordReset, db: Session = Depends(get_db), settings: config.Settings = Depends(get_settings)):
     """
     Resets the password using the provided email, token, and new password.

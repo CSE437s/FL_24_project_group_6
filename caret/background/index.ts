@@ -21,9 +21,7 @@ chrome.contextMenus.onClicked.addListener(async function (info, tab) {
     })
   }
   else {
-    chrome.tabs.sendMessage(tab.id, {
-      action: "log_in_message"
-    })
+    chrome.action.openPopup();
   }
   
 })
