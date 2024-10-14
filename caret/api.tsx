@@ -64,3 +64,11 @@ export async function create_comment(text : string, url : string, css_selector:s
 export async function get_url_comments(url : string) {
     return axios.get(get_coments_url, {params: {url : url}})
 }
+
+export async function is_user_logged_in() {
+    const storage = new Storage({
+        copiedKeyList: ["shield-modulation"], 
+      })
+    const token = await storage.get("access_token"); // Retrieve the access token
+    return token
+}
