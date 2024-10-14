@@ -36,6 +36,7 @@ Initial Setup for backend:
    ```
 
 If you already have everything installed:
+`source .venv/bin/activate`
 
 `docker-compose up -d`
 
