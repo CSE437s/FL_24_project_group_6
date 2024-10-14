@@ -15,6 +15,14 @@ from sqlalchemy.orm import Session
 
 from . import models, schemas, db_utils
 from .database import SessionLocal, engine
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.utils import formataddr
+from fastapi import BackgroundTasks
+
+
+
 
 
 # Dependency
@@ -48,6 +56,23 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+def send_email(to_email: str, subject: str, body: str, settings: config.Settings):
+    """
+    Sends an email using SMTP with the provided subject and body.
+    Replace with a third-party service like SendGrid or Mailgun for production.
+    """
+    msg = MIMEMultipart()
+    msg['From'] = formataddr(('Caret', settings.EMAIL_FROM))
+    msg['To'] = to_email
+    msg['Subject'] = subject
+
+    msg.attach(MIMEText(body, 'plain'))
+
+    with smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT) as server:
+        server.starttls()
+        server.login(settings.EMAIL_FROM, settings.EMAIL_PASSWORD)
+        server.sendmail(settings.EMAIL_FROM, to_email, msg.as_string())
 
 def create_access_token(settings: Annotated[config.Settings, Depends(get_settings)], data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
@@ -136,3 +161,60 @@ def get_all_url_comments(
     url: str, db: Session = Depends(get_db)
 ):
     return db_utils.get_comments_by_url(db=db, url=url)
+
+@app.post("/password-reset-request/")
+def password_reset_request(
+    data: schemas.PasswordResetRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db), settings: config.Settings = Depends(get_settings), 
+    
+):
+    """
+    Generates a password reset token and emails it to the user.
+    """
+    user = db_utils.get_user_by_email(db, email=data.email)
+    if not user:
+        raise HTTPException(status_code=400, detail="Email not found")
+
+    # Generate a password reset token (valid for 30 minutes)
+    reset_token = create_access_token(settings,  data={"sub": data.email}, expires_delta=timedelta(minutes=30))
+
+    # Send the token via email
+    subject = "Password Reset Request"
+    body = f"Please copy and paste the following token to reset your password: {reset_token}"
+    
+    # Send email asynchronously using background tasks
+    background_tasks.add_task(send_email, user.email, subject, body, settings)
+
+    return {"message": "Password reset token sent via email."}
+
+@app.post("/reset-password/")
+def reset_password(data: schemas.PasswordReset, db: Session = Depends(get_db), settings: config.Settings = Depends(get_settings)):
+    """
+    Resets the password using the provided email, token, and new password.
+    """
+    # Verify the token
+    try:
+        payload = jwt.decode(data.token, settings.SECRET_KEY, algorithms=[settings.algorithm])
+        email: str = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=400, detail="Invalid token")
+    except InvalidTokenError:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    if email != data.email:
+        raise HTTPException(status_code=400, detail="Invalid token or email")
+
+    # Fetch the user from the database
+    user = db_utils.get_user_by_email(db, email=data.email)
+    if not user:
+        raise HTTPException(status_code=400, detail="Email not found")
+
+    # Hash the new password and update it in the database
+    hashed_password = db_utils.hash_password(data.new_password)
+    user.hashed_password = hashed_password
+    db.commit()
+
+    # Generate a new access token for login after password reset
+    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
+    access_token = create_access_token(
+        settings=settings, data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    return schemas.Token(access_token=access_token, token_type="bearer")

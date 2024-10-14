@@ -53,3 +53,8 @@ def get_user_comments(db: Session, user_id: int):
 
 def get_comments_by_url(db: Session, url: str):
     return db.query(models.Comment).filter(models.Comment.url == url)
+
+def update_password(db: Session, user: models.User, new_password: str):
+    hashed_password = get_password_hash(new_password)
+    user.hashed_password = hashed_password
+    db.commit()
