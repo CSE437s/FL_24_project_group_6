@@ -26,6 +26,7 @@ export async function get_me() {
     return axios.get(me_url, config)
 }
 
+
 export async function create_comment(text : string, url : string, css_selector:string, selectedText : string , textOffsetStart: number, textOffsetEnd: number) {
     const storage = new Storage({
         copiedKeyList: ["shield-modulation"], 
