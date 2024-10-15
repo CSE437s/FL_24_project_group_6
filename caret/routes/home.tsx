@@ -69,7 +69,7 @@ export const Home = ({ user }) => {
                 {comment.username}: {comment.text}
               </Typography>
               <Typography variant="body2" color="textSecondary">
-                <a href={comment.url}>{comment.url}</a>
+                <a target="_blank" href={comment.url}>{comment.url}</a>
               </Typography>
               <Typography variant="body2">
                 Selected Text: {comment.selected_text}
