@@ -26,20 +26,11 @@ export const Profile = ({user}) => {
                 <Button variant="contained" color="primary" onClick={handleHomeClick}>
                     Home
                 </Button>
-            <h2>{user}</h2>
             <Button
             variant = "contained"
             onClick={handleLogout} >
             Logout
           </Button>
-            <Button
-                variant="contained"
-                color="secondary"
-                onClick={function (): void{}}
-                style={{ marginTop: "20px" }}
-            >
-                Delete Account
-            </Button>
         </Box>
     )
 }
