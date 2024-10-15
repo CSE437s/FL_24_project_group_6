@@ -49,10 +49,40 @@ def create_user_comment(db: Session, comment: schemas.CommentCreate, user_id: in
     return db_comment
 
 def get_user_comments(db: Session, user_id: int):
-    return db.query(models.Comment).filter(models.Comment.owner_id == user_id)
+    comments_with_username = db.query(models.Comment, models.User.username)\
+             .join(models.User, models.Comment.owner_id == models.User.id)\
+             .filter(models.Comment.owner_id == user_id).all()
+    joined_comments = []
+    for comment, username in comments_with_username:
+        joined_comments.append( schemas.CommentWithUserName(
+            id=comment.id,
+            text=comment.text,
+            url=comment.url,
+            css_selector=comment.css_selector,
+            selected_text=comment.selected_text,
+            text_offset_start=comment.text_offset_start,
+            text_offset_end=comment.text_offset_end,
+            username=username
+        ))
+    return joined_comments
 
 def get_comments_by_url(db: Session, url: str):
-    return db.query(models.Comment).filter(models.Comment.url == url)
+    comments_with_username = db.query(models.Comment, models.User.username)\
+             .join(models.User, models.Comment.owner_id == models.User.id)\
+             .filter(models.Comment.url == url).all()
+    joined_comments = []
+    for comment, username in comments_with_username:
+        joined_comments.append( schemas.CommentWithUserName(
+            id=comment.id,
+            text=comment.text,
+            url=comment.url,
+            css_selector=comment.css_selector,
+            selected_text=comment.selected_text,
+            text_offset_start=comment.text_offset_start,
+            text_offset_end=comment.text_offset_end,
+            username=username
+        ))
+    return joined_comments
 
 def update_password(db: Session, user: models.User, new_password: str):
     hashed_password = get_password_hash(new_password)
