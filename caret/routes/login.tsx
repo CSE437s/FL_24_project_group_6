@@ -29,6 +29,9 @@ export const Login = ({setUser, setIsLoggedIn }) => {
 		const handleSignUpClick = () => {
 				navigate("/signup");
 		};
+		const handleForgotClick = () => {
+			navigate("/request_email_reset")
+		}
 		return (
 				<Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", minWidth: 320, height: 400, padding: 20 }}>
 						<Box>
@@ -67,6 +70,13 @@ export const Login = ({setUser, setIsLoggedIn }) => {
 										</Box>
 								</Box>
 						</FormControl>
+						<Link
+								component="button"
+								variant="body2"
+								onClick={handleForgotClick}
+						>
+								Forgot Password?
+						</Link>
 						<Link
 								component="button"
 								variant="body2"

@@ -14,6 +14,8 @@ import {
 	ThemeProvider,
 	Typography,
 } from "@material-ui/core";
+import { EmailPasswordReset} from "./password_reset_email";
+import { ResetPassword } from "./password_reset_new_password";
 
 const theme = createTheme({
 		typography: {
@@ -35,34 +37,40 @@ export const Routing = () => {
     const navigate = useNavigate();
 
   useEffect(() => {
-    const checkLoginStatus = async () => {
+    const checkInitialState = async () => {
       const storage = new Storage({
         copiedKeyList: ["shield-modulation"], 
       })
-      const token = await storage.get("access_token"); // Retrieve the access token
+      const awaiting_reset = await storage.get("awaiting_reset");
+      if (awaiting_reset) {
+        navigate("/reset_password")
+      }
+      else {
+        const token = await storage.get("access_token"); // Retrieve the access token
 
-      if (token) {
-        // If token exists, user is logged in
-        setIsLoggedIn(true);
+        if (token) {
+          // If token exists, user is logged in
+          setIsLoggedIn(true);
 
-        // fetch user_details
-        try {
-          const userDetails = await get_me(); // Assuming this returns user data
-          setUsername(userDetails.data.username); // Set username from fetched data
-          navigate("/home")
-          
-        }
-        catch {
+          // fetch user_details
+          try {
+            const userDetails = await get_me(); // Assuming this returns user data
+            setUsername(userDetails.data.username); // Set username from fetched data
+            navigate("/home")
+            
+          }
+          catch {
+            setIsLoggedIn(false);
+          }
+        
+        } else {
+          // No token found, user is not logged in
           setIsLoggedIn(false);
         }
-       
-      } else {
-        // No token found, user is not logged in
-        setIsLoggedIn(false);
-      }
-    };
+      };
+    }
 
-    checkLoginStatus(); // Invoke the function to check login status
+    checkInitialState(); // Invoke the function to check login status
   }, []); // Adding storage as a dependency (optional)
 
   
@@ -85,6 +93,8 @@ export const Routing = () => {
 								<Route path="/" element={<Login setUser={setUsername} setIsLoggedIn={setIsLoggedIn}/>} />
 								<Route path="/profile" element={<Profile user={username} />} />
 								<Route path="/Signup" element={<Signup />} />
+                <Route path="/request_email_reset" element={<EmailPasswordReset/>} />
+                <Route path="/reset_password" element={<ResetPassword/>} />
 						</Routes>
 				</ThemeProvider>
 		);
