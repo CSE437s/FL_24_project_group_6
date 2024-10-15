@@ -5,6 +5,7 @@ import { Storage } from "@plasmohq/storage"
 const token_url = "http://localhost:8000/token"
 const me_url = "http://localhost:8000/users/me"
 const create_comment_url = "http://localhost:8000/create_comment"
+const get_coments_url = "http://localhost:8000/comments"
 
 
 export function fetch_token(username: string, password: string) {
@@ -42,4 +43,8 @@ export async function create_comment(text : string, url : string, css_selector:s
         text_offset_end: textOffsetEnd
     }
     return axios.post(create_comment_url, data, config)
+}
+
+export async function get_url_comments(url : string) {
+    return axios.get(get_coments_url, {params: {url : url}})
 }

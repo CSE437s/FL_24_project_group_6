@@ -8,6 +8,7 @@ export const getInlineAnchor: PlasmoGetInlineAnchor = async () => {
     return document.querySelector('body')
 }
 
+console.log("hello")
 
 const CommentInputForm = () => {
     const [comment, setComment] = useState("");
