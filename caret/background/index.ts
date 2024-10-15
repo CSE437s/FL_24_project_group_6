@@ -1,8 +1,9 @@
-import axios from "axios"
-import { get_url_comments } from "~api"
+import { is_user_logged_in } from "~api"
+
 
 // this is the logic to add a create caret to the right click menu when the extension is installed
 chrome.runtime.onInstalled.addListener(function () {
+    console.log("hi")
     chrome.contextMenus.create({
       title: 'Create caret',
       contexts: ["selection"],
@@ -13,9 +14,18 @@ chrome.runtime.onInstalled.addListener(function () {
 
 // this is the logic that is triggered when the create caret right click is clicked
 chrome.contextMenus.onClicked.addListener(async function (info, tab) {
-  chrome.tabs.sendMessage(tab.id, {
+  const logged_in = await is_user_logged_in()
+  if (logged_in) {
+    chrome.tabs.sendMessage(tab.id, {
       action: "show_comment_create"
     })
+  }
+  else {
+    chrome.tabs.sendMessage(tab.id, {
+      action: "log_in_message"
+    })
+  }
+  
 })
 
 // //this logic runs whenever a user goes to a new url
