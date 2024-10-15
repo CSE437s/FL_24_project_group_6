@@ -20,7 +20,7 @@ async function get_and_display_comments() {
   console.log("going")
   for (let i = 0; i < comments.length; i++) {
       console.log("wrapped")
-      wrapTextInSpan(comments[i].css_selector, comments[i].text, comments[i].text_offset_start, comments[i].text_offset_end, comments[i].text)
+      wrapTextInSpan(comments[i].css_selector, comments[i].text, comments[i].text_offset_start, comments[i].text_offset_end, comments[i].text, comments[i].username)
       
   }
 }
@@ -36,7 +36,7 @@ window.addEventListener("load", async () => {
   })
 
   
-  function wrapTextInSpan(cssSelector, selectedText, textOffsetStart, textOffsetEnd, comment) {
+  function wrapTextInSpan(cssSelector, selectedText, textOffsetStart, textOffsetEnd, comment, username) {
     // Select the element using the CSS selector
     const element = document.querySelector(cssSelector);
   
@@ -66,13 +66,27 @@ window.addEventListener("load", async () => {
 
         // Create the tooltip element
         const tooltip = document.createElement("div");
-        tooltip.textContent = comment; // The text to display in the tooltip
+
+        // Structure the tooltip content with a username header and comment body
+        tooltip.innerHTML = `
+            <div style="font-weight: bold; margin-bottom: 5px; color: #333;" id="tooltip-username">Username</div>
+            <div style="color: #555;" id="tooltip-comment">${comment}</div>
+        `;
+
+        // Apply styles to the tooltip box
         tooltip.style.position = "absolute";
         tooltip.style.backgroundColor = "white";
-        tooltip.style.border = "1px solid black";
-        tooltip.style.padding = "5px";
+        tooltip.style.border = "1px solid #ccc";
+        tooltip.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
+        tooltip.style.borderRadius = "8px";
+        tooltip.style.padding = "10px";
+        tooltip.style.maxWidth = "200px";  // Adjust the width if necessary
         tooltip.style.zIndex = "1000";
-        tooltip.style.display = "none"; // Initially hidden
+        tooltip.style.display = "none";  // Initially hidden
+
+        // You can dynamically set the username as well
+
+        tooltip.querySelector("#tooltip-username").textContent = username + ":";
 
         // Position the tooltip above the span
         span.onclick = function(event) {
