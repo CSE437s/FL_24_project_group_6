@@ -8,22 +8,31 @@ import React, { useState } from 'react';
 //     return document.querySelector('body')
 // }
 export {}
+async function get_and_display_comments() {
+  let response = await sendToBackground({
+    name: "get_url_comments",
+    body: {
+        url: location.href
+    }
+  })
+  const comments = response.comments
+  console.log(comments)
+  console.log("going")
+  for (let i = 0; i < comments.length; i++) {
+      console.log("wrapped")
+      wrapTextInSpan(comments[i].css_selector, comments[i].text, comments[i].text_offset_start, comments[i].text_offset_end, comments[i].text)
+      
+  }
+}
 
 window.addEventListener("load", async () => {
-    let response = await sendToBackground({
-        name: "get_url_comments",
-        body: {
-            url: location.href
-        }
-      })
-    const comments = response.comments
-    console.log(comments)
-    console.log("going")
-    for (let i = 0; i < comments.length; i++) {
-        console.log("wrapped")
-        wrapTextInSpan(comments[i].css_selector, comments[i].text, comments[i].text_offset_start, comments[i].text_offset_end, comments[i].text)
-        
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log(message)
+    if (message.action === "refresh_comments") {
+      get_and_display_comments()
     }
+  })
+    get_and_display_comments()
   })
 
   
@@ -95,29 +104,3 @@ window.addEventListener("load", async () => {
       console.error("Element not found with the provided CSS selector.");
     }
   }
-
-
-
-// const InlineCommentHighlight = async () => {
-//     const [isMounted, setIsMounted] = useState(false)
-//     const [fetchState, setFetchState] = useState("unfetched")
-//     const [comments, setComments] = useState([])
-
-    
-//     if (fetchState === "unfetched") {
-//         setFetchState("fetching")
-        
-//         console.log(fetchedComments.comments)
-//         setComments(fetchedComments.comments)
-//         setFetchState("fetched")
-//     }
-    
-//     if (!isMounted) {
-//         return null
-//     }
-//     return (
-//       <button>Hello</button>
-//     );
-//   };
-  
-// export default InlineCommentHighlight;

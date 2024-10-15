@@ -44,8 +44,7 @@ const CommentInputForm = () => {
               textOffsetEnd: highlightedTextInfo.textOffsetEnd,
               comment: comment            }
           })
-           
-          console.log(resp)
+        console.log(resp)
         setIsMounted(false)
       } else {
         alert("Comment cannot be empty");
