@@ -137,6 +137,13 @@ async def read_users_me(
 ):
     return current_user
 
+@app.get("/users/me/comments", response_model=list[schemas.CommentWithUserName])
+async def read_users_me_comments(
+    current_user: Annotated[schemas.User, Depends(get_current_active_user)],
+    db: Session = Depends(get_db)
+):
+    return db_utils.get_user_comments(db=db, user_id=current_user.id)
+
 @app.post("/users/", response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = db_utils.get_user_by_email(db, email=user.email)
@@ -150,13 +157,13 @@ def create_comment_for_current_user(
 ):
     return db_utils.create_user_comment(db=db, comment=comment, user_id=current_user.id)
 
-@app.get("/users/{user_id}/comments/", response_model=list[schemas.Comment])
+@app.get("/users/{user_id}/comments/", response_model=list[schemas.CommentWithUserName])
 def get_comments_for_user(
     user_id: int, db: Session = Depends(get_db)
 ):
     return db_utils.get_user_comments(db=db, user_id=user_id)
 
-@app.get("/comments/", response_model=list[schemas.Comment])
+@app.get("/comments/", response_model=list[schemas.CommentWithUserName])
 def get_all_url_comments(
     url: str, db: Session = Depends(get_db)
 ):

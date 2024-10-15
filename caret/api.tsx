@@ -8,6 +8,7 @@ const create_comment_url = "http://localhost:8000/create_comment"
 const get_coments_url = "http://localhost:8000/comments"
 const password_reset_request_url = "http://localhost:8000/password_reset_request/"
 const reset_password_url = "http://localhost:8000/reset-password/"
+const get_my_comments_url = "http://localhost:8000/users/me/comments"
 
 
 export function fetch_token(username: string, password: string) {
@@ -26,6 +27,18 @@ export async function get_me() {
         headers: { Authorization: `Bearer ${access_token}` }
     };
     return axios.get(me_url, config)
+}
+
+export async function get_my_comments() {
+    const storage = new Storage({
+        copiedKeyList: ["shield-modulation"], 
+      })
+    const access_token = await storage.get("access_token")
+    const config = {
+        headers: { Authorization: `Bearer ${access_token}` }
+    };
+    return axios.get(get_my_comments_url, config)
+
 }
 
 export async function request_password_reset(email : string) {
