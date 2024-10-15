@@ -54,6 +54,7 @@ export const Login = ({setUser, setIsLoggedIn }) => {
 										<TextField fullWidth
 												id="password"
 												label="Password"
+												type="password"
 												value={password}
 												onChange={(e) => setPassword(e.target.value)}
 												variant="outlined"

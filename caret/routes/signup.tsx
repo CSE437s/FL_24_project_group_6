@@ -3,7 +3,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Storage } from "@plasmohq/storage";
-import { Button, TextField, Box, Typography, FormControl, IconButton } from "@material-ui/core";
+import { Button, TextField, Box, Typography, FormControl, IconButton, Link} from "@material-ui/core";
 
 export const Signup = () => {
     const [username, setUsername] = useState("");
@@ -48,7 +48,7 @@ export const Signup = () => {
                     </Typography>
                     <TextField fullWidth
                         id="email"
-                        label="email"
+                        label="Email"
                         value={email}
                         required
                         onChange={(e) => setEmail(e.target.value)}
@@ -84,6 +84,13 @@ export const Signup = () => {
                     </Button>
                 </Box>
             </FormControl>
+            <Link
+								component="button"
+								variant="body2"
+								onClick={handleBack}
+						>
+								Back to login
+						</Link>
         </Box>
     );
 };
