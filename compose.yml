@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: container-pg
+    image: postgres
+    hostname: localhost
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: test_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: container-pgadmin
+    image: dpage/pgadmin4
+    depends_on:
+      - postgres
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    restart: unless-stopped
+
+  fastapi:
+    container_name: container-fastapi
+    build: ./backend  # This points to the backend folder containing the Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://admin:root@postgres/test_db
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend:/app  # Mounts the backend folder
+    restart: unless-stopped
+
+  plasmo-extension:
+    container_name: container-plasmo
+    build: ./caret  # This points to the caret folder containing the Dockerfile for Plasmo
+    command: npm run dev  # Starts Plasmo development server
+    volumes:
+      - ./caret:/app  # Mounts the caret folder with the Plasmo extension code
+    ports:
+      - "5173:5173"  # Plasmo dev server port (if applicable)
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
