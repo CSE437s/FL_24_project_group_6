@@ -1,7 +1,7 @@
 import { useState } from "react" 
 import React from "react";
-import { Button, Box } from "@material-ui/core";
-import { ToggleButton } from "@material-ui/lab";
+import { Button, Box } from "@mui/material";
+import { ToggleButton } from "@mui/lab";
 import { useNavigate } from "react-router-dom";
 import { Storage } from "@plasmohq/storage"
 

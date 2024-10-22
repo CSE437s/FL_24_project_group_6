@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, TextField, Box, Typography, Link, FormControl } from "@material-ui/core";
+import { Button, TextField, Box, Typography, Link, FormControl } from "@mui/material";
 import { request_password_reset } from "~api";
 import { Storage } from "@plasmohq/storage"
 

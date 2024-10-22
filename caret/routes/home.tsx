@@ -1,6 +1,6 @@
 import { Navigate, useNavigate } from "react-router-dom"
 import { useState, useEffect} from "react"
-import {Box, Typography, Button, FormControl} from "@material-ui/core"
+import {Box, Typography, Button, FormControl} from "@mui/material"
 import { get_my_comments } from "~api";
 
 export const Home = ({ user }) => {

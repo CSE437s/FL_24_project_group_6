@@ -3,7 +3,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Storage } from "@plasmohq/storage";
-import { Button, TextField, Box, Typography, FormControl, IconButton, Link} from "@material-ui/core";
+import { Button, TextField, Box, Typography, FormControl, IconButton, Link} from "@mui/material";
 
 export const Signup = () => {
     const [username, setUsername] = useState("");

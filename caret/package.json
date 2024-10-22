@@ -10,13 +10,17 @@
     "package": "plasmo package"
   },
   "dependencies": {
-    "@material-ui/core": "^4.12.4",
-    "@material-ui/lab": "4.0.0-alpha.61",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.1.5",
+    "@mui/lab": "^6.0.0-beta.13",
+    "@mui/material": "^6.1.5",
+    "@mui/styles": "^6.1.5",
     "@plasmohq/messaging": "^0.6.2",
     "@plasmohq/storage": "^1.12.0",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.7.7",
-    "plasmo": "0.89.2",
+    "plasmo": "^0.89.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-router-dom": "^6.26.2"

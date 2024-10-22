@@ -7,29 +7,33 @@ import { Home } from "./home";
 import { Profile } from "./profile";
 import { Signup } from "./signup";
 import { useNavigate } from "react-router-dom";
+import { ThemeProvider, createTheme, makeStyles } from '@mui/material';
 import {
 	Box,
 	Button,
-	createTheme,
-	ThemeProvider,
 	Typography,
 } from "@material-ui/core";
 import { EmailPasswordReset} from "./password_reset_email";
 import { ResetPassword } from "./password_reset_new_password";
+const theme = createTheme();
 
-const theme = createTheme({
-		typography: {
-				fontFamily: "Helvetica Neue",
-		},
-		palette: {
-				primary: {
-						main: '#6A8532',
-				},
-				secondary: {
-						main: '#F98128',
-				},
-		},
+const useStyles = makeStyles((theme) => {
+  root: {
+   // typography: {
+    //  fontFamily: "Helvetica Neue",
+  //},
+ // palette: {
+  //    primary: {
+   //       main: '#6A8532',
+   //   },
+   //   secondary: {
+   //       main: '#F98128',
+   //   },
+  //},
+    // some CSS that accesses the theme
+  }
 });
+
 
 export const Routing = () => {
     const [username, setUsername] = useState("")

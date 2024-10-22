@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Storage } from "@plasmohq/storage";
 import { fetch_token, get_me } from "~api";
 import { useNavigate } from "react-router-dom";
-import { Button, TextField, Box, Typography, Link, FormControl } from "@material-ui/core";
+import { Button, TextField, Box, Typography, Link, FormControl } from "@mui/material";
 
 export const Login = ({setUser, setIsLoggedIn }) => {
 		const [username, setUsername] = useState("");
