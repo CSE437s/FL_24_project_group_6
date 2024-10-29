@@ -11,9 +11,8 @@ COPY package*.json ./
 
 # Install dependencies
 RUN apt-get update && apt-get install -y python3 python3-pip
-RUN npm config set python /usr/bin/python3
 
-RUN npm install --legacy-peer-deps
+RUN npm install
 
 # Copy the rest of the extension source code
 COPY ./ /app/src
