@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { request_password_reset } from "src/api";
 import { Storage } from "@plasmohq/storage";
+import logo from "data-base64:~assets/icon.png";
 
 export const EmailPasswordReset = () => {
   const [email, setEmail] = useState("");
@@ -21,7 +22,7 @@ export const EmailPasswordReset = () => {
     }
   };
 
-  const handleLoginClick = () => {
+  const handleBack = () => {
     navigate("/"); // Navigate to login page
   };
 
@@ -30,49 +31,46 @@ export const EmailPasswordReset = () => {
   };
 
   return (
-    <div className="flex flex-col justify-between min-w-[320px] h-[400px] p-5">
+    <div className="flex flex-col justify-between p-2">
+      <div className="flex justify-start">
+        <button
+          className="text-customOrangeLight hover:underline"
+          aria-label="Back"
+          onClick={handleBack}
+        >
+          ← Back
+        </button>
+      </div>
       <div>
-        <h1 className="text-2xl font-bold text-purple-500 mb-2">
-          Reset Your Password
-        </h1>
-        <h2 className="text-lg mb-4">
-          Enter your email address to reset your password.
-        </h2>
+      <img className = "mx-auto object-contain size-16" src={logo} alt = "logo"></img>
+    <h2 className="mt-5 mb-5 text-center text-xl font-bold text-customGreenDark">Reset Your Pasword</h2>
       </div>
 
-      <form className="space-y-4">
+      <form className="flex flex-col space-y-4 mt-10 mb-10">
         <input
           type="email"
           id="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="h-full w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-customOrangeLight text-sm py-3"
         />
 
         <button
           type="button"
           onClick={handleResetPassword}
-          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+          className="w-full bg-customOrangeDark text-white text-sm py-2 rounded-md hover:bg-customOrangeLight"
         >
           Send Reset Email
         </button>
       </form>
 
-      <div className="mt-4">
-        <button
-          onClick={handleLoginClick}
-          className="text-blue-500 hover:underline"
-        >
-          Back to Login
+      <div className="text-center space-y-2">
+      <p className="mt-10 text-center text-xs text-gray-400"> Don't have an account? 
+        <button onClick={handleSignUpClick} className=" text-customGreenLight font-semibold hover:underline ml-1">
+          Sign Up
         </button>
-        <br />
-        <button
-          onClick={handleSignUpClick}
-          className="text-blue-500 hover:underline"
-        >
-          Don't have an account? Sign Up
-        </button>
+        </p>
       </div>
     </div>
   );

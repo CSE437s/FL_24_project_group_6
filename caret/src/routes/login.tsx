@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Storage } from "@plasmohq/storage";
 import { fetch_token } from "src/api";
 import { useNavigate } from "react-router-dom";
+import logo from "data-base64:~assets/icon.png";
 
 export const Login = ({ setUser, setIsLoggedIn }) => {
   const [username, setUsername] = useState("");
@@ -20,7 +21,7 @@ export const Login = ({ setUser, setIsLoggedIn }) => {
       console.log("stored");
       setUser(username);
       setIsLoggedIn(true);
-      navigate("/profile");
+      navigate("/home");
     } catch {
       console.log("log in error");
     }
@@ -33,49 +34,53 @@ export const Login = ({ setUser, setIsLoggedIn }) => {
   const handleForgotClick = () => {
     navigate("/request_email_reset");
   };
-
+  
   return (
-    <div className="flex flex-col justify-between  h-[400px] p-5">
-      <div>
-        <h1 className="text-2xl font-bold text-customGreenDark mb-2">Welcome to Caret</h1>
-        <h2 className="text-lg mb-4">Comments for the Internet!</h2>
-      </div>
-
-      <form className="space-y-4">
+    <div className="flex min-h-full flex-col justify-center px-4">
+  <img className = "mx-auto object-contain size-16" src={logo} alt = "logo"></img>
+    <h2 className="mt-4 text-center text-xl font-bold text-customGreenDark">Sign in to Your Account</h2>
+      <form className="space-y-4 mt-4">
+      <div className="mt-2">
         <input
           type="text"
           id="username"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-customOrangeLight"
+          className=" h-full w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-customOrangeLight text-sm py-3"
         />
-        
+        </div>
+        <div className="flex-col items-center justify-between">
+          <div className = "mt-2">
         <input
           type="password"
           id="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-customOrangeLight"
+          className="h-full block w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-customOrangeLight text-sm py-3"
         />
-        
+        </div>
+        <div className = "flex justify-end">
+        <button onClick={handleForgotClick} className=" text-gray-400 hover:underline text-xs space-y-2">
+          Forgot Password?
+        </button>
+        </div>
+        </div>
         <button
           type="button"
           onClick={handleLogin}
-          className="w-full bg-customOrangeDark text-white py-2 rounded-md hover:bg-customOrangeLight"
+          className="w-full bg-customOrangeDark text-white text-sm py-2 rounded-md hover:bg-customOrangeLight"
         >
           Login
         </button>
       </form>
-
-      <div className="mt-4 space-y-2">
-        <button onClick={handleForgotClick} className="text-customGreenLight hover:underline">
-          Forgot Password?
+      <div className="text-center mt-4 space-y-2">
+      <p className="mt-10 text-center text-xs text-gray-400"> Don't have an account? 
+        <button onClick={handleSignUpClick} className=" text-customGreenLight font-semibold hover:underline ml-1">
+          Sign Up
         </button>
-        <button onClick={handleSignUpClick} className="text-customGreenLight hover:underline">
-          Don't have an account? Sign Up
-        </button>
+        </p>
       </div>
     </div>
   );

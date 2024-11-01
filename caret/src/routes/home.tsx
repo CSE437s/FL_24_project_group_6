@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { get_my_comments } from "src/api";
+import ProfileNav from "../components/profileNav";
 
 export const Home = ({ user }) => {
   const [comments, setComments] = useState([]);
@@ -33,6 +34,7 @@ export const Home = ({ user }) => {
 
   return (
     <div className="flex flex-col justify-center h-[500px] p-5">
+      <ProfileNav/>
       {/* Welcome Title */}
       <div className="flex justify-start mb-4">
         <h1 className="text-xl">Welcome, {user}!</h1>
