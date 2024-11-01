@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   postgres:
     container_name: container-pg
@@ -24,6 +25,19 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: root
+    restart: unless-stopped
+
+  fastapi:
+    container_name: container-fastapi
+    build: ./backend  # This points to the backend folder containing the Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://admin:root@postgres/test_db
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend:/app  # Mounts the backend folder
     restart: unless-stopped
 
 volumes:

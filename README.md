@@ -29,10 +29,10 @@ Initial Setup for backend:
 
    `docker-compose up -d`
 
-6. start the app. you can go to http://localhost:8000/docs to see the docs.  
-   uvicorn app.main:app --reload
-   ```
+6. start the app. you can go to http://localhost:8000/docs to see the docs.
 
+   ```
+   uvicorn app.main:app --reload
    ```
 
 If you already have everything installed:
