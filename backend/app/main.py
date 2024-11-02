@@ -149,6 +149,10 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = db_utils.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
+
+    db_user = db_utils.get_user_by_username(db, username=user.username)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Username already taken. Please choose a new username.")
     return db_utils.create_user(db=db, user=user)
 
 @app.post("/create_comment", response_model=schemas.Comment)
