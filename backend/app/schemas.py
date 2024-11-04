@@ -48,7 +48,7 @@ class PasswordReset(BaseModel):
     token: str
     new_password: str
 
-class CommentWithUserName(Comment):
+class CommentWithUserName(CommentInDB):
     username: str
 
 

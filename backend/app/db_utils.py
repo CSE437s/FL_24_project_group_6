@@ -62,7 +62,8 @@ def get_user_comments(db: Session, user_id: int):
             selected_text=comment.selected_text,
             text_offset_start=comment.text_offset_start,
             text_offset_end=comment.text_offset_end,
-            username=username
+            username=username,
+            owner_id=comment.owner_id
         ))
     return joined_comments
 
@@ -80,7 +81,8 @@ def get_comments_by_url(db: Session, url: str):
             selected_text=comment.selected_text,
             text_offset_start=comment.text_offset_start,
             text_offset_end=comment.text_offset_end,
-            username=username
+            username=username,
+            owner_id=comment.owner_id
         ))
     return joined_comments
 
