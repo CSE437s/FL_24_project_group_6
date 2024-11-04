@@ -8,7 +8,6 @@ import { start } from "repl";
 export {}
 
 let comments = []
-let commentCount = 0
 
 async function get_and_display_comments() {
   let response = await sendToBackground({
@@ -21,12 +20,11 @@ async function get_and_display_comments() {
   const new_comments = response.comments.filter(newComment => 
     !comments.find(existingComment => existingComment.id === newComment.id)
   );
-  //console.log(new_comments)
+  console.log(new_comments)
   //console.log("going")
   for (let i = 0; i < new_comments.length; i++) {
       //console.log("wrapped" + i)
-      wrapTextInSpan(new_comments[i].css_selector, new_comments[i].text, new_comments[i].text_offset_start, new_comments[i].text_offset_end, new_comments[i].text, new_comments[i].username, colors[commentCount % colors.length])
-      commentCount ++
+      wrapTextInSpan(new_comments[i].css_selector, new_comments[i].text, new_comments[i].text_offset_start, new_comments[i].text_offset_end, new_comments[i].text, new_comments[i].username, colors[new_comments[i].owner_id % colors.length])
       //console.log("done")
   }
   comments = response.comments
