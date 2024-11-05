@@ -4,6 +4,7 @@ import { Storage } from "@plasmohq/storage"
 
 const token_url = "http://localhost:8000/token"
 const me_url = "http://localhost:8000/users/me"
+const followers_url = "http://localhost:8000/users/me/followers"
 const create_comment_url = "http://localhost:8000/create_comment"
 const get_comments_url = "http://localhost:8000/comments"
 const password_reset_request_url = "http://localhost:8000/password_reset_request/"
@@ -29,6 +30,16 @@ export async function get_me() {
         headers: { Authorization: `Bearer ${access_token}` }
     };
     return axios.get(me_url, config)
+}
+export async function get_followers() {
+    const storage = new Storage({
+        copiedKeyList: ["shield-modulation"], 
+      })
+    const access_token = await storage.get("access_token")
+    const config = {
+        headers: { Authorization: `Bearer ${access_token}` }
+    };
+    return axios.get(followers_url, config)
 }
 
 export async function get_my_comments() {

@@ -40,7 +40,7 @@ export const Home = ({ user }) => {
         {comments.length > 0 ? (
           <div className="mt-2">
             {comments.map((comment, index) => (
-              <Comment isUser = {false} index = {index} username = {comment.username} text = {comment.text} url = {comment.url} selectedText = {comment.selected_text}/>
+              <Comment isUser = {false} index = {index} username = {comment.username} text = {comment.text} url = {comment.url} selectedText = {comment.selected_text} id = {comment.id}/>
             ))}
           </div>
         ) : (

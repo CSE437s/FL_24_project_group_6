@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Storage } from "@plasmohq/storage";
 import { follow_by_username } from "~api";
+import { get_followers } from "~api";
 
 export const Profile = ({ user, setIsLoggedIn}) => {
   const navigate = useNavigate();
@@ -13,10 +14,33 @@ export const Profile = ({ user, setIsLoggedIn}) => {
   const letter = strValue.charAt(0);//first letter
   const [username, setUsername] = useState("");
   const [usernameError, setUsernameError] = useState("");
-
-
-
-  const followers = 0;// get followers and this number would change, const for now
+  const [followers, setFollowers] = useState([0]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    
+    // Fetch comments when the component mounts
+    useEffect(() => {
+      async function fetchFollowers() {
+        try {
+          const response = await get_followers();
+          console.log("tyring!");
+          setFollowers(response.data);
+        } catch (err) {
+          // setError("Failed to fetch comments.");
+        } finally {
+          setLoading(false);
+        }
+      }
+      fetchFollowers();
+    }, []);
+  
+    if (loading) {
+      return <div className="text-center">Loading...</div>;
+    }
+  
+    if (error) {
+      return <div className="text-red-500 text-center">{error}</div>;
+    }
 
   const handleHomeClick = () => {
     navigate("/home");
@@ -41,7 +65,7 @@ export const Profile = ({ user, setIsLoggedIn}) => {
   </div>
   <div className = "flex flex-col ml-2">
   <p className="text-2xl font-bold">{user}</p>
-  <p className = "text-sm  text-gray-400">{followers} followers</p>
+  <p className = "text-sm  text-gray-400">{followers.length} followers</p>
   </div>
   </div>
     <div>
