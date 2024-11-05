@@ -266,7 +266,7 @@ async def follow_user(
     db_utils.follow_user(db=db, follower_id=current_user.id, followee_id=followee_id)
     return {"message": "User followed."}
 
-@app.post("/users/me/follow_by_username", response_model=dict)
+@app.post("/users/me/follow_by_username/{followee_username}", response_model=dict)
 async def follow_user(
     current_user: Annotated[schemas.User, Depends(get_current_active_user)],
     followee_username: str,

@@ -132,5 +132,7 @@ export async function follow_by_username(username: string) {
     const config = {
         headers: { Authorization: `Bearer ${access_token}` }
     };
+    const url = new URL(follow_user_by_username)
+    url.searchParams.append("followee_username", username)
     return axios.post(follow_user_by_username + "/" + username, {}, config)
 }
