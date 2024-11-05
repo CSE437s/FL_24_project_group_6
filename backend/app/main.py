@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from sqlalchemy.orm import Session
-from . import config
+from . import config, models, schemas
 from functools import lru_cache
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -13,7 +13,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
 from sqlalchemy.orm import Session
 
-from . import models, schemas, db_utils
+from . import db_utils
 from .database import SessionLocal, engine
 import smtplib
 from email.mime.text import MIMEText
@@ -223,3 +223,48 @@ def reset_password(data: schemas.PasswordReset, db: Session = Depends(get_db), s
         settings=settings, data={"sub": user.username}, expires_delta=access_token_expires
     )
     return schemas.Token(access_token=access_token, token_type="bearer")
+# Friend routes
+@app.get("/users/me/followers", response_model=list[schemas.User])
+async def get_followers(
+    current_user: Annotated[schemas.User, Depends(get_current_active_user)],
+    db: Session = Depends(get_db)
+):
+    """Get all followers of the current user."""
+    return db_utils.get_followers(db, user_id=current_user.id)
+
+@app.post("/users/me/follow/{followee_id}", response_model=dict)
+async def follow_user(
+    current_user: Annotated[schemas.User, Depends(get_current_active_user)],
+    followee_id: int,
+    db: Session = Depends(get_db)
+):
+    """Follow a user."""
+    db_utils.follow_user(db=db, follower_id=current_user.id, followee_id=followee_id)
+    return {"message": "User followed."}
+
+@app.delete("/users/me/unfollow/{followee_id}", response_model=dict)
+async def unfollow_user(
+    current_user: Annotated[schemas.User, Depends(get_current_active_user)],
+    followee_id: int,
+    db: Session = Depends(get_db)
+):
+    """Unfollow a user."""
+    db_utils.unfollow_user(db=db, follower_id=current_user.id, followee_id=followee_id)
+    return {"message": "User unfollowed."}
+
+@app.get("/users/me/following", response_model=list[schemas.User])
+
+async def get_following(
+    current_user: Annotated[schemas.User, Depends(get_current_active_user)],
+    db: Session = Depends(get_db)
+):
+    """Get all followers of the current user."""
+    return db_utils.get_following(db=db, user_id=current_user.id)
+
+@app.get("/users/me/following/comments", response_model=list[schemas.CommentWithUserName])
+async def get_following_comments(
+    current_user: Annotated[schemas.User, Depends(get_current_active_user)],
+    db: Session = Depends(get_db)
+):
+    """Get all comments made by the users the current user follows."""
+    return db_utils.get_comments_from_following(db=db, user_id=current_user.id)
