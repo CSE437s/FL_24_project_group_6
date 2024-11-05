@@ -16,7 +16,7 @@ async function get_and_display_comments() {
         url: location.href
     }
   })
-  const colors = ["#C8DB2A", "#FF7BAD", "6FE4CC", "#185D79", "#EF4686"]
+  const colors = ["#C8DB2A", "#FF7BAD", "#6FE4CC", "#185D79", "#EF4686"]
   const new_comments = response.comments.filter(newComment => 
     !comments.find(existingComment => existingComment.id === newComment.id)
   );
