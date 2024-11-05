@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from sqlalchemy import and_
 from enum import Enum
+from fastapi import HTTPException, status
 
 from . import models, schemas
 
@@ -48,6 +49,24 @@ def create_user_comment(db: Session, comment: schemas.CommentCreate, user_id: in
     db.commit()
     db.refresh(db_comment)
     return db_comment
+
+def delete_comment(db: Session, comment_id: int, user_id: int):
+    # Retrieve the comment by ID
+    comment = db.query(models.Comment).filter(models.Comment.id == comment_id).first()
+    
+    # Check if the comment exists
+    if comment is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found")
+    
+    # Check if the user owns the comment
+    if comment.owner_id != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this comment")
+    
+    # Delete the comment
+    db.delete(comment)
+    db.commit()
+    
+    return {"message": "Comment deleted successfully"}
 
 def get_user_comments(db: Session, user_id: int):
     comments_with_username = db.query(models.Comment, models.User.username)\
