@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { get_my_comments } from "src/api";
+import { get_following_comments } from "src/api";
 import { Comment} from "~components/Comment";
 
 
@@ -14,7 +14,7 @@ export const Home = ({ user }) => {
   useEffect(() => {
     async function fetchComments() {
       try {
-        const response = await get_my_comments();
+        const response = await get_following_comments();
         setComments(response.data);
       } catch (err) {
         // setError("Failed to fetch comments.");

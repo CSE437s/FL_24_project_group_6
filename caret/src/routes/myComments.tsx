@@ -35,7 +35,7 @@ export const MyComments=() => {
     return (
       <div className="flex flex-col justify-center">
         {/* Comments Section */}
-        <div className="flex flex-col container p-6 ">  
+        <div className="flex flex-col container px-6 ">  
           {comments.length > 0 ? (
             <div className="mt-2">
               {comments.map((comment, index) => (
