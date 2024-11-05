@@ -7,12 +7,32 @@ import logo from "data-base64:~assets/icon.png";
 export const Login = ({ setUser, setIsLoggedIn }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [usernameError, setUsernameError] = useState(""); 
+  const [passwordError, setPasswordError] = useState(""); 
+  const [loginError, setLoginError] = useState(""); 
   const navigate = useNavigate();
   const storage = new Storage({
     copiedKeyList: ["shield-modulation"],
   });
 
   const handleLogin = async () => {
+    setUsernameError(""); 
+    setPasswordError("");
+    setLoginError("");
+
+    let valid = true;
+    if (!username) {
+      setUsernameError("Username is required.");
+      valid = false;
+    }
+    if (!password) {
+      setPasswordError("Password is required.");
+      valid = false;
+    }
+    if (!valid){
+      return;
+    }
+
     try {
       let response = await fetch_token(username, password);
       let token = response.data["access_token"];
@@ -22,10 +42,20 @@ export const Login = ({ setUser, setIsLoggedIn }) => {
       setUser(username);
       setIsLoggedIn(true);
       navigate("/home");
-    } catch {
+    } catch (error){
+      if(error.response){
+        if(error.response.data.detail){
+          if (error.response.data.detail) {
+            setLoginError(error.response.data.detail);
+          }
+        } else{
+          setLoginError("Login error: " + error.status);
+        }
+      }
       console.log("log in error");
     }
   };
+
 
   const handleSignUpClick = () => {
     navigate("/signup");
@@ -50,6 +80,8 @@ export const Login = ({ setUser, setIsLoggedIn }) => {
           className=" h-full w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-customOrangeLight text-sm py-3"
         />
         </div>
+        {usernameError && <p className="text-red-500">{usernameError}</p>}
+
         <div className="flex-col items-center justify-between">
           <div className = "mt-2">
         <input
@@ -61,6 +93,8 @@ export const Login = ({ setUser, setIsLoggedIn }) => {
           className="h-full block w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-customOrangeLight text-sm py-3"
         />
         </div>
+        {[passwordError] && <p className="text-red-500">{passwordError}</p>}
+
         <div className = "flex justify-end">
         <button onClick={handleForgotClick} className=" text-gray-400 hover:underline text-xs space-y-2">
           Forgot Password?
@@ -74,6 +108,7 @@ export const Login = ({ setUser, setIsLoggedIn }) => {
         >
           Login
         </button>
+        {loginError && <p className="text-red-500">{loginError}</p>}
       </form>
       <div className="text-center mt-4 space-y-2">
       <p className="mt-10 text-center text-xs text-gray-400"> Don't have an account? 
