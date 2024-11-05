@@ -14,6 +14,8 @@ export const Profile = ({ user, setIsLoggedIn}) => {
   const letter = strValue.charAt(0);//first letter
   const [username, setUsername] = useState("");
   const [usernameError, setUsernameError] = useState("");
+  const [followingNotif, setfollowingNotif] = useState(""); 
+  const [outputError, setOutputError] = useState(""); 
   const [followers, setFollowers] = useState([0]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -54,7 +56,21 @@ export const Profile = ({ user, setIsLoggedIn}) => {
   };
   const handleFollowUser = async () => {
     console.log("hi!")
-    await follow_by_username(username)
+    try{ 
+      await follow_by_username(username)
+      setfollowingNotif("Successfully followed " + username)
+      setUsername("")
+    }
+    catch(error){
+      if(error.response){
+        if(error.response.data.detail){
+          setOutputError(error.response.data.detail);
+        }
+      } else{
+        setOutputError("Failed to follow " + username + " with error " + error.status + ". Try again")
+      }
+    }
+
   }
 
   return (
@@ -69,7 +85,29 @@ export const Profile = ({ user, setIsLoggedIn}) => {
   <p className = "text-sm  text-gray-400">{followers.length} followers</p>
   </div>
   </div>
-  </div>
+    </div>
+      {followingNotif && (
+      <div className="relative bg-blue-100 text-blue-500 p-2 rounded-md shadow-md">
+        <p>{followingNotif}</p>
+        <button 
+          className="absolute top-1 right-1 text-blue-700 font-bold"
+          onClick={() => (setfollowingNotif(""))} // Dismisses by setting `followingNotif` to empty string
+        >
+          X
+        </button>
+      </div>
+      )}
+      {outputError && (
+      <div className="relative bg-red-100 text-red-500 p-2 rounded-md shadow-md">
+        <p>{outputError}</p>
+        <button 
+          className="absolute top-1 right-1 text-red-700 font-bold"
+          onClick={() => (setOutputError(""))} // Dismisses by setting `outputError` to empty string 
+        >
+          X
+        </button>
+      </div>
+      )}
     <div>
       <h2 className="mt-4 text-center text-xl font-bold text-customGreenDark">Follow a Careter</h2>
       </div>
