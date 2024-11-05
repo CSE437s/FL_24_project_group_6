@@ -79,7 +79,7 @@ export const Signup = () => {
           if (error.response.data.detail.includes("Username")) {
             setUsernameError("Username is already taken.");
           }
-          if (error.response.data.detail.includes("Email")) {
+          else if (error.response.data.detail.includes("Email")) {
             setEmailError("Email is already registered.");
           } else{
           setGeneralError(error.response.data.detail);
