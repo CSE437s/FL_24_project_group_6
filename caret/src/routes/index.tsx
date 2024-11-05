@@ -69,7 +69,7 @@ export const Routing = () => {
       <Routes>
         <Route path="/home" element={<Home user={username} />} />
         <Route path="/" element={<Login setUser={setUsername} setIsLoggedIn={setIsLoggedIn} />} />
-        <Route path="/profile" element={<Profile user={username} />} />
+        <Route path="/profile" element={<Profile user={username} setIsLoggedIn = {setIsLoggedIn} />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/about" element={<About />} />
         <Route path="/request_email_reset" element={<EmailPasswordReset />} />
