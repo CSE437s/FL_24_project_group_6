@@ -119,6 +119,9 @@ async def login_for_access_token(
 ) -> schemas.Token:
     user = db_utils.authenticate_user(db, form_data.username, form_data.password)
     if not user:
+        db_user_by_username = db_utils.get_user_by_username(db, username=user.username)
+        if not db_user_by_username:
+            raise HTTPException(status_code=400, detail="Username has not been registered. Please double check the username or sign up.")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
