@@ -1,6 +1,7 @@
 import type { PlasmoGetInlineAnchor } from "plasmo";
 import { sendToBackground } from "@plasmohq/messaging";
 import React, { useState, useEffect } from 'react';
+import { start } from "repl";
 
 // Define the inline anchor function
 export const getInlineAnchor: PlasmoGetInlineAnchor = async () => {
@@ -188,17 +189,94 @@ function getUniqueSelector(elSrc: Element): string | undefined {
     }
 }
 
+function removeAllSpans(element: Element) {
+    // Use a recursive function to unwrap all <span> tags
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT, null);
+    let currentNode;
+
+    while (currentNode = walker.nextNode()) {
+        if (currentNode.tagName === 'SPAN' && currentNode.className === 'caretAnchorClass') {
+            const parent = currentNode.parentNode;
+            while (currentNode.firstChild) {
+                parent.insertBefore(currentNode.firstChild, currentNode);
+            }
+            parent.removeChild(currentNode);
+        }
+    }
+}
+
+const filterOutTooltips = (node) => {
+    if (node.nodeType === Node.TEXT_NODE || node.className !== "caretTooltip") {
+        return NodeFilter.FILTER_ACCEPT
+    }
+    else {
+        return NodeFilter.FILTER_REJECT
+    }
+}
+
+function calculateTrueIntervals(element: Element, range: Range) {
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, filterOutTooltips);
+    console.log("endcontainer")
+    console.log(range.endContainer)
+    let currentNode: Node
+    console.log("starting loop")
+    let totalOffset = 0
+    // find the start offset
+    while ((currentNode = walker.nextNode()) && (currentNode !== range.startContainer)) {
+        if (currentNode.nodeType === Node.TEXT_NODE) {
+            console.log(currentNode.textContent)
+            totalOffset = totalOffset + currentNode.textContent.length
+        }
+    }
+    let startOffset = range.startOffset + totalOffset 
+    let endOffset = range.endOffset +  totalOffset
+    console.log("start offset before while:")
+    console.log(startOffset)
+    console.log("end offset before while:")
+    console.log(endOffset)
+    while ((currentNode !== range.endContainer)) {
+        console.log("current")
+        console.log(currentNode)
+        console.log("supposed to stop at")
+        console.log(range.endContainer)
+        console.log("PAY ATTENIN")
+        console.log(currentNode)
+        if (currentNode.nodeType === Node.TEXT_NODE) {
+            console.log("end offset:")
+            console.log(endOffset)
+            console.log("length of text ")
+            console.log(currentNode.textContent.length)
+            console.log(currentNode.textContent)
+            endOffset = endOffset + currentNode.textContent.length
+        }
+        currentNode = walker.nextNode()
+    }
+    console.log(startOffset)
+    console.log(endOffset)
+    console.log("ending loop")
+    return [startOffset, endOffset]
+}
+
 // Function to get the CSS selector of the highlighted text
 function getHighlightedTextInfo() {
     const selection = window.getSelection();
+    console.log(selection)
     if (selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
         const selectedText = selection.toString();
-        const element = range.startContainer.parentElement; // Get the parent element
-        const cssSelector = getUniqueSelector(element as Element); // Ensure correct type
-        const textOffsetStart = range.startOffset;
-        const textOffsetEnd = range.endOffset;
+        console.log("common ancestor")
+        console.log(range.commonAncestorContainer)
 
+        console.log("range")
+        console.log(range)
+        let element = range.startContainer.parentElement; // Get the parent element, not a span
+        if (element.className === "caretAnchorClass") [
+            element = element.parentElement
+        ] 
+
+        const cssSelector = getUniqueSelector(element as Element); // Ensure correct type
+        console.log(cssSelector)
+        const [textOffsetStart, textOffsetEnd] = calculateTrueIntervals(element, range)
         return {
             selectedText,
             cssSelector,

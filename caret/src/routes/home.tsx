@@ -16,7 +16,7 @@ export const Home = ({ user }) => {
         const response = await get_my_comments();
         setComments(response.data);
       } catch (err) {
-        setError("Failed to fetch comments.");
+        // setError("Failed to fetch comments.");
       } finally {
         setLoading(false);
       }
