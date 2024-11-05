@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 
 export const NavBar= () =>{
 return(
-    <nav className=" flex justify-between items-center">
+    <nav className=" flex justify-between items-center sticky top-8 z-50 bg-white">
       <ul className="w-full grid grid-flow-col text-center border-b border-gray-200 text-gray-500 z-50 ">
         <li>
           <NavLink 
