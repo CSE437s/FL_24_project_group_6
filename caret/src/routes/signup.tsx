@@ -8,6 +8,10 @@ export const Signup = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [generalError, setGeneralError] = useState("");
   const navigate = useNavigate();
   const storage = new Storage({
     copiedKeyList: ["shield-modulation"],
@@ -17,22 +21,75 @@ export const Signup = () => {
     navigate("/");
   };
 
-  const handleSignup = async () => {
-    if (email && username && password) {
-      const data = { username, email, password };
-      console.log(data);
+  const validEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
-      try {
-        const response = await axios.post("http://localhost:8000/users/", data);
-        console.log(response.data.token, "response.data.token");
-        storage.set("access_token", response.data.token);
-        console.log("stored");
-        navigate("/");
-      } catch (error) {
-        console.error(error, "error");
+  const complexPassword = (password) => {
+    // 6 characters long, contain an uppercase letter, a lowercase letter, and a number
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+={}\[\]:;"'<>?,.\/\\\-]{6,}$/;
+    return passwordRegex.test(password);
+  };
+
+
+
+  const handleSignup = async () => {
+    setEmailError("");
+    setUsernameError("");
+    setPasswordError("");
+    setGeneralError(""); 
+    let valid = true; 
+
+    if (!email){
+      setEmailError("Email is required.");
+      valid = false;
+    }
+    if (!validEmail(email)){
+      setEmailError("Please enter a valid email address.");
+      valid = false;
+    }
+    if (!username) {
+      setUsernameError("Username is required.");
+      valid = false;
+    }
+    if (!password) {
+      setPasswordError("Password is required.");
+      valid = false;
+    }
+    if (!complexPassword(password)) {
+      setPasswordError("Password must be at least 6 characters long and include uppercase, lowercase, and a number.");
+      valid = false;
+    }
+    if (!valid){
+      return;
+    }
+
+    const data = {username, email, password}; 
+    console.log(data); 
+
+    try {
+      const response = await axios.post("http://localhost:8000/users/", data);
+      console.log("Response from server:", response);
+      storage.set("access_token", response.data.token);
+      navigate("/");
+    } catch (error) {
+      if (error.response) {
+        if (error.response.data.detail) {
+          if (error.response.data.detail.includes("Username")) {
+            setUsernameError("Username is already taken.");
+          }
+          if (error.response.data.detail.includes("Email")) {
+            setEmailError("Email is already registered.");
+          } else{
+          setGeneralError(error.response.data.detail);
+          }
+        } else{
+          setGeneralError("An unexpected error occurred: code " + error.response.status + ". Please try again.");
+        }
+      } else {
+        setGeneralError("An unexpected error occurred. Please try again.");
       }
-    } else {
-      alert("Please ensure all fields are filled out");
     }
   };
 
@@ -63,6 +120,8 @@ export const Signup = () => {
           required
           className="h-full w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-customOrangeLight text-sm py-3"
         />
+        {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+
 
         <input
           type="text"
@@ -73,6 +132,7 @@ export const Signup = () => {
           required
           className="h-full w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-customOrangeLight text-sm py-3"
         />
+        {usernameError && <p className="text-red-500">{usernameError}</p>}
 
         <input
           type="password"
@@ -83,6 +143,7 @@ export const Signup = () => {
           required
           className="h-full w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-customOrangeLight text-sm py-3"
         />
+        {passwordError && <p className="text-red-500">{passwordError}</p>}
 
         <button
           type="button"
@@ -91,6 +152,7 @@ export const Signup = () => {
         >
           Sign Up
         </button>
+        {generalError && <p className="text-red-500">{generalError}</p>} 
       </form>
     </div>
   );
