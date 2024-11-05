@@ -135,7 +135,7 @@ def get_self_and_following_url_comments(db: Session, url: str, user_id: int):
     print(follower_ids)
     comments_with_username = db.query(models.Comment, models.User.username)\
              .join(models.User, models.Comment.owner_id == models.User.id)\
-             .filter(models.Comment.url == url, models.Comment.owner_id.in_([user_id] + follower_ids)).all()
+             .filter(models.Comment.url == url, models.Comment.owner_id.in_(follower_ids)).all()
     return [
         schemas.CommentWithUserName(
             id=comment.id,
@@ -152,6 +152,8 @@ def get_self_and_following_url_comments(db: Session, url: str, user_id: int):
         for comment, username in comments_with_username
     ]
 
+
+
 def update_password(db: Session, user: models.User, new_password: str):
     hashed_password = get_password_hash(new_password)
     user.hashed_password = hashed_password
@@ -167,6 +169,11 @@ def get_followers(db: Session, user_id: int):
         db.query(models.followers_association.c.follower_id)
           .filter(models.followers_association.c.followee_id == user_id)
     )).all()
+
+def follow_user_by_username(db: Session, follower_id: int, followee_username: str):
+    """Follow a user by their username."""
+    user = get_user_by_username(db=db, username=followee_username)
+    follow_user(db=db, follower_id=follower_id, followee_id=user.id)
 
 def follow_user(db: Session, follower_id: int, followee_id: int):
     """Follow a user."""
