@@ -118,10 +118,11 @@ async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[Session, Depends(get_db)],settings: Annotated[config.Settings, Depends(get_settings)]
 ) -> schemas.Token:
     user = db_utils.authenticate_user(db, form_data.username, form_data.password)
-    if not user:
+    if user:
         db_user_by_username = db_utils.get_user_by_username(db, username=user.username)
         if not db_user_by_username:
             raise HTTPException(status_code=400, detail="Username has not been registered. Please double check the username or sign up.")
+    else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
