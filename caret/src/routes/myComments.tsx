@@ -8,7 +8,7 @@ export const MyComments=() => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-  
+    
     // Fetch comments when the component mounts
     useEffect(() => {
       async function fetchComments() {
@@ -39,7 +39,7 @@ export const MyComments=() => {
           {comments.length > 0 ? (
             <div className="mt-2">
               {comments.map((comment, index) => (
-                 <Comment isUser = {true} index = {index} username = {comment.username} text = {comment.text} url = {comment.url} selectedText = {comment.selected_text}/>
+                 <Comment isUser = {true} index = {index} username = {comment.username} text = {comment.text} url = {comment.url} selectedText = {comment.selected_text} id = {comment.id}/>
               ))}
             </div>
           ) : (

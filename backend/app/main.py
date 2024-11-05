@@ -118,11 +118,7 @@ async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[Session, Depends(get_db)],settings: Annotated[config.Settings, Depends(get_settings)]
 ) -> schemas.Token:
     user = db_utils.authenticate_user(db, form_data.username, form_data.password)
-    if user:
-        db_user_by_username = db_utils.get_user_by_username(db, username=user.username)
-        if not db_user_by_username:
-            raise HTTPException(status_code=400, detail="Username has not been registered. Please double check the username or sign up.")
-    else:
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -164,6 +160,12 @@ def create_comment_for_current_user(
     current_user: Annotated[schemas.User, Depends(get_current_active_user)], comment: schemas.CommentCreate, db: Session = Depends(get_db)
 ):
     return db_utils.create_user_comment(db=db, comment=comment, user_id=current_user.id)
+
+@app.delete("/delete_comment")
+def delete_comment(
+    current_user: Annotated[schemas.User, Depends(get_current_active_user)], comment_id: int, db: Session = Depends(get_db)
+):
+    return db_utils.delete_comment(db=db, comment_id=comment_id, user_id=current_user.id)
 
 @app.get("/users/{user_id}/comments/", response_model=list[schemas.CommentWithUserName])
 def get_comments_for_user(
@@ -262,6 +264,16 @@ async def follow_user(
 ):
     """Follow a user."""
     db_utils.follow_user(db=db, follower_id=current_user.id, followee_id=followee_id)
+    return {"message": "User followed."}
+
+@app.post("/users/me/follow_by_username", response_model=dict)
+async def follow_user(
+    current_user: Annotated[schemas.User, Depends(get_current_active_user)],
+    followee_username: str,
+    db: Session = Depends(get_db)
+):
+    """Follow a user."""
+    db_utils.follow_user_by_username(db=db, follower_id=current_user.id, followee_username=followee_username)
     return {"message": "User followed."}
 
 @app.delete("/users/me/unfollow/{followee_id}", response_model=dict)

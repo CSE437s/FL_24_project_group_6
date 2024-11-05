@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Storage } from "@plasmohq/storage";
+import { follow_by_username } from "~api";
 
 export const Profile = ({ user, setIsLoggedIn}) => {
   const navigate = useNavigate();
@@ -10,6 +11,10 @@ export const Profile = ({ user, setIsLoggedIn}) => {
   const colors = ["#C8DB2A", "#FF7BAD", "6FE4CC", "#185D79", "#EF4686"]; //assign user color from here and put in circle
   let strValue: string = user as string;
   const letter = strValue.charAt(0);//first letter
+  const [username, setUsername] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+
+
 
   const followers = 0;// get followers and this number would change, const for now
 
@@ -23,6 +28,10 @@ export const Profile = ({ user, setIsLoggedIn}) => {
     await storage.set("access_token", "");
     navigate("/");
   };
+  const handleFollowUser = async () => {
+    console.log("hi!")
+    await follow_by_username(username)
+  }
 
   return (
     <div className=" w-full flex flex-col justify-center p-5">
@@ -35,9 +44,34 @@ export const Profile = ({ user, setIsLoggedIn}) => {
   <p className = "text-sm  text-gray-400">{followers} followers</p>
   </div>
   </div>
+    <div>
+      <h2 className="mt-4 text-center text-xl font-bold text-customGreenDark">Follow a Careter</h2>
+      </div>
+
+      <form className="flex flex-col space-y-4 mt-5">
+
+        <input
+          type="username"
+          id="username"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          className="h-full w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-customOrangeLight text-sm py-3"
+        />
+        {usernameError && <p className="text-red-500 text-sm mt-1">{usernameError}</p>}
+
+        <button
+          type="button"
+          onClick={() => handleFollowUser()}
+          className="w-full bg-green-500 text-white text-sm py-2 rounded-md hover:bg-green-600"
+        >
+          Follow!
+        </button>
+      </form>
       <button
         onClick={handleLogout}
-        className="w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
+        className="w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 mt-4"
       >
         Logout
       </button>
