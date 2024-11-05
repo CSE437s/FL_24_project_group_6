@@ -1,4 +1,8 @@
 from pydantic import BaseModel
+from typing import List, Optional
+from datetime import datetime
+
+
 
 class Token(BaseModel):
     access_token: str
@@ -22,6 +26,7 @@ class CommentCreate(Comment):
 class CommentInDB(Comment):
     id: int
     owner_id: int
+    created_at: datetime 
     class Config:
         orm_mode = True
 
@@ -36,7 +41,10 @@ class UserInDB(User):
     id: int
     hashed_password: str
     disabled: bool | None = None
-    comments: list[Comment] = []
+    comments: List[Comment] = []
+    followers: List["User"] = []       # Users following this user
+    following: List["User"] = []       # Users this user is following
+
     class Config:
         orm_mode = True
 
@@ -48,7 +56,7 @@ class PasswordReset(BaseModel):
     token: str
     new_password: str
 
-class CommentWithUserName(Comment):
+class CommentWithUserName(CommentInDB):
     username: str
 
 
