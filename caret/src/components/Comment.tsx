@@ -17,9 +17,9 @@ export const Comment = ({isUser, index, username, text, url, selectedText, id })
                   >
                     <div className = "flex">
                     <p className="font-medium text-emerald-600">
-                     @ {username} :
+                     @{username}: 
                     </p>
-                    <p>{text}</p>
+                    <p className="ml-1">{text}</p>
                     </div>
                     <p className="italic text-customGreenLight">
                       {selectedText}
