@@ -20,7 +20,7 @@ export const Profile = ({ user }: { user: string }) => {
   };
 
   return (
-    <div className="flex flex-col justify-center h-[500px] p-5">
+    <div className="flex flex-col justify-center p-5">
       <h1 className="text-2xl font-semibold mb-6">{user} Profile</h1>
 
       <button

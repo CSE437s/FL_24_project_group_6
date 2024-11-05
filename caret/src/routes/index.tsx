@@ -4,11 +4,15 @@ import { fetch_token, get_me } from "src/api";
 import { Storage } from "@plasmohq/storage";
 import { Login } from "./login";
 import { Home } from "./home";
+import About from "./about";
 import { Profile } from "./profile";
 import { Signup } from "./signup";
 import { EmailPasswordReset } from "./password_reset_email";
 import { ResetPassword } from "./password_reset_new_password";
 import { useNavigate } from "react-router-dom";
+import { NavBar } from "~components/NavBar";
+import {ProfileNav} from "../components/ProfileNav";
+import {MyComments} from "./myComments";
 
 export const Routing = () => {
   const [username, setUsername] = useState("");
@@ -60,13 +64,17 @@ export const Routing = () => {
 
   return (
     <div className="w-full h-full flex flex-col overflow-y-auto">
+       {isLoggedIn && <ProfileNav user = {username}/>}
+      {isLoggedIn && <NavBar/> }
       <Routes>
         <Route path="/home" element={<Home user={username} />} />
         <Route path="/" element={<Login setUser={setUsername} setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/profile" element={<Profile user={username} />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/about" element={<About />} />
         <Route path="/request_email_reset" element={<EmailPasswordReset />} />
         <Route path="/reset_password" element={<ResetPassword />} />
+        <Route path="/my_comments" element={<MyComments />} />
       </Routes>
     </div>
   );
