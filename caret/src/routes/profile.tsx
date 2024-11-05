@@ -56,6 +56,12 @@ export const Profile = ({ user, setIsLoggedIn}) => {
   };
   const handleFollowUser = async () => {
     console.log("hi!")
+
+    if (!username || username == ''){
+      setUsernameError("Please enter a username.")
+      return;
+    }
+    setUsernameError("")
     try{ 
       await follow_by_username(username)
       setfollowingNotif("Successfully followed " + username)
