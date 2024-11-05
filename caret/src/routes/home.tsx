@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { get_my_comments } from "src/api";
-import ProfileNav from "../components/profileNav";
+import { get_following_comments } from "src/api";
+import { Comment} from "~components/Comment";
+
 
 export const Home = ({ user }) => {
   const [comments, setComments] = useState([]);
@@ -13,7 +14,7 @@ export const Home = ({ user }) => {
   useEffect(() => {
     async function fetchComments() {
       try {
-        const response = await get_my_comments();
+        const response = await get_following_comments();
         setComments(response.data);
       } catch (err) {
         // setError("Failed to fetch comments.");
@@ -33,46 +34,18 @@ export const Home = ({ user }) => {
   }
 
   return (
-    <div className="flex flex-col justify-center h-[500px] p-5">
-      <ProfileNav/>
-      {/* Welcome Title */}
-      <div className="flex justify-start mb-4">
-        <h1 className="text-xl">Welcome, {user}!</h1>
-      </div>
-
+    <div className="flex flex-col justify-center">
       {/* Comments Section */}
-      <div className="flex flex-col">
-        <h3 className="text-xl mb-2">Recent Comments:</h3>
-
+      <div className="flex flex-col container px-6 ">
         {comments.length > 0 ? (
           <div className="mt-2">
             {comments.map((comment, index) => (
-              <div
-                key={index}
-                className="p-4 bg-green-100 mt-2 rounded-lg"
-              >
-                <p className="font-medium">
-                  {comment.username}: {comment.text}
-                </p>
-                <p className="text-gray-500">
-                  <a target="_blank" rel="noopener noreferrer" href={comment.url}>{comment.url}</a>
-                </p>
-                <p>
-                  Selected Text: {comment.selected_text}
-                </p>
-              </div>
+              <Comment isUser = {false} index = {index} username = {comment.username} text = {comment.text} url = {comment.url} selectedText = {comment.selected_text}/>
             ))}
           </div>
         ) : (
           <p>No comments available.</p>
         )}
-
-        <button
-          onClick={() => navigate("/profile")}
-          className="bg-customOrangeDark text-white rounded-md py-2 mt-5 w-full"
-        >
-          Go to Profile
-        </button>
       </div>
     </div>
   );

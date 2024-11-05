@@ -107,7 +107,7 @@ const CommentInputForm = () => {
                     type="submit"
                     style={{
                         padding: "8px 12px",
-                        backgroundColor: "#007bff",
+                        backgroundColor: "#EB5E26",
                         color: "#fff",
                         border: "none",
                         borderRadius: "4px",

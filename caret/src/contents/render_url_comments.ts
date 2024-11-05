@@ -123,8 +123,8 @@ function wrapTextInSpan(cssSelector, selectedText, textOffsetStart, textOffsetEn
 
       // Structure the tooltip content with a username header and comment body
       tooltip.innerHTML = `
-          <div style="font-weight: bold; margin-bottom: 5px; color: #333;" id="tooltip-username">Username</div>
-          <div style="color: #555;" id="tooltip-comment">${comment}</div>
+          <div style="font-weight: bold; margin-bottom: 5px; color: #6A8532;" id="tooltip-username">Username</div>
+          <div id="tooltip-comment">${comment}</div>
       `;
 
       // Apply styles to the tooltip box
@@ -141,7 +141,7 @@ function wrapTextInSpan(cssSelector, selectedText, textOffsetStart, textOffsetEn
 
       // You can dynamically set the username as well
 
-      tooltip.querySelector("#tooltip-username").textContent = username + ":";
+      tooltip.querySelector("#tooltip-username").textContent = "@" + username + ":";
 
       // Position the tooltip above the span
       span.onclick = function(event) {

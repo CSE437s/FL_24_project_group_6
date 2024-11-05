@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Storage } from "@plasmohq/storage";
 
-export const Profile = ({ user }: { user: string }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+export const Profile = ({ user, setIsLoggedIn}) => {
   const navigate = useNavigate();
   const storage = new Storage({
     copiedKeyList: ["shield-modulation"],
@@ -15,12 +14,13 @@ export const Profile = ({ user }: { user: string }) => {
 
   const handleLogout = async () => {
     localStorage.removeItem("token");
+    setIsLoggedIn(false);
     await storage.set("access_token", "");
     navigate("/");
   };
 
   return (
-    <div className="flex flex-col justify-center h-[500px] p-5">
+    <div className="flex flex-col justify-center p-5">
       <h1 className="text-2xl font-semibold mb-6">{user} Profile</h1>
 
       <button
