@@ -12,6 +12,7 @@ console.log("hello");
 
 const CommentInputForm = () => {
     const [comment, setComment] = useState<string>("");
+    const [commentError, setCommentError] = useState(""); 
     const [isMounted, setIsMounted] = useState<boolean>(false);
     const [highlightedTextInfo, setHighlightedTextInfo] = useState<{
         selectedText: string;
@@ -52,6 +53,7 @@ const CommentInputForm = () => {
     // Handle form submission
     const handleEmitEvent = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault(); // Prevent page refresh
+        setCommentError(""); 
         if (comment.trim()) {
             console.log(highlightedTextInfo);
             const resp = await sendToBackground({
@@ -67,7 +69,7 @@ const CommentInputForm = () => {
             console.log(resp);
             setIsMounted(false);
         } else {
-            alert("Comment cannot be empty");
+            setCommentError("Comment cannot be empty.");
         }
     };
 
@@ -114,6 +116,7 @@ const CommentInputForm = () => {
                     Submit
                 </button>
             </div>
+            {commentError && <p className="text-red-500">{commentError}</p>}
         </form>
     );
 };
