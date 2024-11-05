@@ -2,8 +2,8 @@ import { NavLink } from 'react-router-dom';
 
 export const NavBar= () =>{
 return(
-    <nav className=" flex items-center justify-between">
-      <ul className="w-full grid grid-flow-col text-center border-b border-gray-200 text-gray-500">
+    <nav className=" flex justify-between items-center">
+      <ul className="w-full grid grid-flow-col text-center border-b border-gray-200 text-gray-500 z-50 ">
         <li>
           <NavLink 
             to="/about" 

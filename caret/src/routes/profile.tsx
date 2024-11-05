@@ -16,6 +16,7 @@ export const Profile = ({ user }: { user: string }) => {
   const handleLogout = async () => {
     localStorage.removeItem("token");
     await storage.set("access_token", "");
+    setIsLoggedIn(false);
     navigate("/");
   };
 

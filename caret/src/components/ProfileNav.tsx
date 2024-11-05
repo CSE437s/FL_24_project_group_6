@@ -10,13 +10,13 @@ export const ProfileNav = ({ user }) => {
 console.log("rendered!");
     
     return (
-        <div className="flex bg-white justify-between p-3 sticky top-0">
+        <div className="flex bg-white justify-between p-3 sticky top-0 z-50">
          <div>
           <p className = "text-customGreenDark font-bold">@{user}</p>
          </div>
        <div>
         <button
-        className="rounded inline-flex items-center bg-transparent text-customGreenDark"
+        className="rounded inline-flex items-center bg-transparent text-customGreenDark hover:text-customGreenLight"
         aria-label="Back"
         onClick={handleClick}
       >

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { get_my_comments } from "src/api";
+import { Comment} from "~components/Comment";
 
 
 export const Home = ({ user }) => {
@@ -35,27 +36,11 @@ export const Home = ({ user }) => {
   return (
     <div className="flex flex-col justify-center">
       {/* Comments Section */}
-      <div className="flex flex-col container p-6 ">
-        <h3 className="text-xl mb-2">Recent Comments:</h3>
-
+      <div className="flex flex-col container px-6 ">
         {comments.length > 0 ? (
           <div className="mt-2">
             {comments.map((comment, index) => (
-              <div
-                key={index}
-                className="p-4 bg-green-100 mt-2 rounded-lg"
-              >
-                <p className="font-medium">
-                 @ {comment.username}
-                </p>
-                <p className = "font-medium">{comment.text}</p>
-                <p className="text-gray-500">
-                  <a target="_blank" rel="noopener noreferrer" href={comment.url}>{comment.url}</a>
-                </p>
-                <p>
-                  Selected Text: {comment.selected_text}
-                </p>
-              </div>
+              <Comment isUser = {false} index = {index} username = {comment.username} text = {comment.text} url = {comment.url} selectedText = {comment.selected_text}/>
             ))}
           </div>
         ) : (
