@@ -171,7 +171,21 @@ def get_comments_for_user(
 def get_all_url_comments(
     url: str, db: Session = Depends(get_db)
 ):
-    return db_utils.get_comments_by_url(db=db, url=url)
+    return db_utils.get_all_url_comments(db=db, url=url)
+
+@app.get("/following_comments", response_model=list[schemas.CommentWithUserName])
+def get_following_url_comments(
+    current_user: Annotated[schemas.User, Depends(get_current_active_user)],
+    url: str, db: Session = Depends(get_db)
+):
+    return db_utils.get_self_and_following_url_comments(db=db, url=url, user_id=current_user.id)
+
+@app.get("/self_comments", response_model=list[schemas.CommentWithUserName])
+def get_self_url_comments(
+    current_user: Annotated[schemas.User, Depends(get_current_active_user)],
+    url: str, db: Session = Depends(get_db)
+):
+    return db_utils.get_self_url_comments(db=db, url=url, user_id=current_user.id)
 
 @app.post("/password_reset_request/")
 def password_reset_request(

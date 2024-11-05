@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from sqlalchemy import and_
+from enum import Enum
 
 from . import models, schemas
 
@@ -68,13 +69,13 @@ def get_user_comments(db: Session, user_id: int):
         ))
     return joined_comments
 
-def get_comments_by_url(db: Session, url: str):
+
+def get_all_url_comments(db: Session, url: str):
     comments_with_username = db.query(models.Comment, models.User.username)\
              .join(models.User, models.Comment.owner_id == models.User.id)\
              .filter(models.Comment.url == url).all()
-    joined_comments = []
-    for comment, username in comments_with_username:
-        joined_comments.append( schemas.CommentWithUserName(
+    return [
+        schemas.CommentWithUserName(
             id=comment.id,
             text=comment.text,
             url=comment.url,
@@ -85,8 +86,52 @@ def get_comments_by_url(db: Session, url: str):
             created_at=comment.created_at,
             owner_id=comment.owner_id,
             username=username
-        ))
-    return joined_comments
+        )
+        for comment, username in comments_with_username
+    ]
+
+def get_self_url_comments(db: Session, url: str, user_id: int):
+    comments_with_username = db.query(models.Comment, models.User.username)\
+             .join(models.User, models.Comment.owner_id == models.User.id)\
+             .filter(models.Comment.url == url, models.Comment.owner_id == user_id).all()
+    return [
+        schemas.CommentWithUserName(
+            id=comment.id,
+            text=comment.text,
+            url=comment.url,
+            css_selector=comment.css_selector,
+            selected_text=comment.selected_text,
+            text_offset_start=comment.text_offset_start,
+            text_offset_end=comment.text_offset_end,
+            created_at=comment.created_at,
+            owner_id=comment.owner_id,
+            username=username
+        )
+        for comment, username in comments_with_username
+    ]
+
+def get_self_and_following_url_comments(db: Session, url: str, user_id: int):
+    followers = get_following(db=db, user_id=user_id)
+    follower_ids = [user.id for user in followers]
+    print(follower_ids)
+    comments_with_username = db.query(models.Comment, models.User.username)\
+             .join(models.User, models.Comment.owner_id == models.User.id)\
+             .filter(models.Comment.url == url, models.Comment.owner_id.in_([user_id] + follower_ids)).all()
+    return [
+        schemas.CommentWithUserName(
+            id=comment.id,
+            text=comment.text,
+            url=comment.url,
+            css_selector=comment.css_selector,
+            selected_text=comment.selected_text,
+            text_offset_start=comment.text_offset_start,
+            text_offset_end=comment.text_offset_end,
+            created_at=comment.created_at,
+            owner_id=comment.owner_id,
+            username=username
+        )
+        for comment, username in comments_with_username
+    ]
 
 def update_password(db: Session, user: models.User, new_password: str):
     hashed_password = get_password_hash(new_password)
