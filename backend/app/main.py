@@ -273,8 +273,11 @@ async def follow_user(
     db: Session = Depends(get_db)
 ):
     """Follow a user."""
-    db_utils.follow_user_by_username(db=db, follower_id=current_user.id, followee_username=followee_username)
-    return {"message": "User followed."}
+    try:
+        db_utils.follow_user_by_username(db=db, follower_id=current_user.id, followee_username=followee_username)
+        return {"message": "User followed."}
+    except HTTPException as e:
+        raise e
 
 @app.delete("/users/me/unfollow/{followee_id}", response_model=dict)
 async def unfollow_user(

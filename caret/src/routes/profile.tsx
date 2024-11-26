@@ -14,6 +14,8 @@ export const Profile = ({ user, setIsLoggedIn}) => {
   const letter = strValue.charAt(0);//first letter
   const [username, setUsername] = useState("");
   const [usernameError, setUsernameError] = useState("");
+  const [followingNotif, setFollowingNotif] = useState("");
+  const [followingNotifType, setFollowingNotifType] = useState("success");
   const [followers, setFollowers] = useState([0]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -54,7 +56,21 @@ export const Profile = ({ user, setIsLoggedIn}) => {
   };
   const handleFollowUser = async () => {
     console.log("hi!")
-    await follow_by_username(username)
+    if (!username || username == ''){
+      setUsernameError("Please enter a username.")
+      return;
+    }
+    setUsernameError("")
+    try{ 
+      await follow_by_username(username);
+      setFollowingNotif("Successfully followed " + username);
+      setFollowingNotifType("success");
+      setUsername("");
+    }
+    catch (error) {
+      setFollowingNotif(error.response?.data?.detail || `Failed to follow ${username}. Please try again.`);
+      setFollowingNotifType("error");
+    }
   }
 
   return (
@@ -68,7 +84,20 @@ export const Profile = ({ user, setIsLoggedIn}) => {
   <p className="text-2xl font-bold">{user}</p>
   <p className = "text-sm  text-gray-400">{followers.length} followers</p>
   </div>
-  </div>
+    </div>
+    {followingNotif && (
+      <div className={`relative p-3 rounded-md shadow-md mb-4 ${
+        followingNotifType === "success" ? "bg-blue-100 text-blue-500" : "bg-red-100 text-red-500"
+        }`}>
+        <p>{followingNotif}</p>
+        <button className={`absolute top-1 right-1 font-bold ${
+          followingNotifType === "success" ? "text-blue-700" : "text-red-700"
+          }`}
+          onClick={() => setFollowingNotif("")}>X
+        </button>
+      </div>
+    )}
+  
   </div>
     <div>
       <h2 className="mt-4 text-center text-xl font-bold text-customGreenDark">Follow a Careter</h2>
