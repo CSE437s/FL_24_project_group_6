@@ -266,6 +266,7 @@ async def follow_user(
     db_utils.follow_user(db=db, follower_id=current_user.id, followee_id=followee_id)
     return {"message": "User followed."}
 
+
 @app.post("/users/me/follow_by_username/{followee_username}", response_model=dict)
 async def follow_user(
     current_user: Annotated[schemas.User, Depends(get_current_active_user)],
@@ -273,11 +274,12 @@ async def follow_user(
     db: Session = Depends(get_db)
 ):
     """Follow a user."""
-    try:
+    followee = db_utils.get_user_by_username(db=db, username=followee_username)
+    if followee is None: 
+        raise HTTPException(status_code=400, detail="User does not exist. Please enter a registered username.")
+    else: 
         db_utils.follow_user_by_username(db=db, follower_id=current_user.id, followee_username=followee_username)
         return {"message": "User followed."}
-    except HTTPException as e:
-        raise e
 
 @app.delete("/users/me/unfollow/{followee_id}", response_model=dict)
 async def unfollow_user(

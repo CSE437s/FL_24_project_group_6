@@ -33,7 +33,6 @@ def authenticate_user(db: Session, username: str, password: str):
         return False
     return user
 
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain_password, hashed_password):
@@ -152,8 +151,6 @@ def get_self_and_following_url_comments(db: Session, url: str, user_id: int):
         for comment, username in comments_with_username
     ]
 
-
-
 def update_password(db: Session, user: models.User, new_password: str):
     hashed_password = get_password_hash(new_password)
     user.hashed_password = hashed_password
@@ -173,8 +170,6 @@ def get_followers(db: Session, user_id: int):
 def follow_user_by_username(db: Session, follower_id: int, followee_username: str):
     """Follow a user by their username."""
     user = get_user_by_username(db=db, username=followee_username)
-    if user==None: 
-        raise HTTPException(status_code=400, detail="User does not exist")
     follow_user(db=db, follower_id=follower_id, followee_id=user.id)
 
 def follow_user(db: Session, follower_id: int, followee_id: int):
