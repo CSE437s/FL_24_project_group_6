@@ -48,7 +48,184 @@ window.addEventListener("load", async () => {
         return NodeFilter.FILTER_REJECT;
     }
 };
-  
+
+
+function wrapTextInSpan(cssSelector, selectedText, textOffsetStart, textOffsetEnd, comment, username, color) {
+  // Find or create the side panel
+  let sidePanel = document.getElementById("comment-popup");
+  let toggleButton = document.getElementById("toggle-sidebar");
+  if (!sidePanel) {
+      sidePanel = document.createElement("div");
+      sidePanel.id = "comment-popup";
+      sidePanel.style.position = "fixed";
+      sidePanel.style.bottom = "10px";
+      sidePanel.style.right = "10px";
+      sidePanel.style.width = "300px";
+      sidePanel.style.maxHeight = "400px";
+      sidePanel.style.overflowY = "auto";
+      sidePanel.style.backgroundColor = "#f8f9fa";
+      sidePanel.style.border = "1px solid #ccc";
+      sidePanel.style.borderRadius = "8px";
+      sidePanel.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+      sidePanel.style.zIndex = "10000";
+      sidePanel.style.padding = "10px";
+      document.body.appendChild(sidePanel);
+
+      // Add minimize/maximize button
+      toggleButton = document.createElement("button");
+      toggleButton.id = "toggle-sidebar";
+      toggleButton.textContent = "-";
+      toggleButton.style.position = "absolute";
+      toggleButton.style.top = "5px";
+      toggleButton.style.right = "5px";
+      toggleButton.style.border = "1px solid #ccc";
+      toggleButton.style.borderRadius = "4px";
+      toggleButton.style.background = "white";
+      toggleButton.style.cursor = "pointer";
+      toggleButton.style.fontSize = "14px";
+      toggleButton.style.padding = "2px 6px";
+      toggleButton.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.1)";
+      toggleButton.style.transition = "all 0.3s ease";
+      toggleButton.addEventListener("mouseover", () => {
+        toggleButton.style.background = "#f1f1f1";
+      });
+      toggleButton.addEventListener("mouseout", () => {
+        toggleButton.style.background = "white";
+      });
+      sidePanel.appendChild(toggleButton);
+
+      // Add event listener for minimize/maximize functionality
+      toggleButton.addEventListener("click", () => {
+        if (sidePanel.style.display !== "none") {
+          sidePanel.style.display = "none"; // Hide the sidebar
+          toggleButton.textContent = "+"; // Update button to maximize
+          toggleButton.style.display = "block"; // Ensure button remains visible
+          toggleButton.style.position = "fixed"; // Keep button fixed
+          toggleButton.style.right = "10px";
+          toggleButton.style.bottom = "10px";
+          document.body.appendChild(toggleButton); // Reattach button to body
+        } else {
+          sidePanel.style.display = "block"; // Show the sidebar
+          toggleButton.textContent = "-"; // Update button to minimize
+          toggleButton.style.position = "absolute"; // Reposition button back to the sidebar
+          toggleButton.style.top = "5px";
+          toggleButton.style.right = "5px";
+          sidePanel.appendChild(toggleButton); // Reattach button to the sidebar
+        }
+      });
+  } 
+
+  // Highlight the selected text on the webpage
+  const elements = document.querySelectorAll(cssSelector);
+  elements.forEach((element, index) => {
+      const text = element.textContent;
+      if (text) {
+          const beforeText = text.slice(0, textOffsetStart);
+          const highlightedText = text.slice(textOffsetStart, textOffsetEnd);
+          const afterText = text.slice(textOffsetEnd);
+
+          // Create a unique ID for the highlighted text
+          const highlightId = `highlight-${Date.now()}-${index}`;
+
+          // Create a wrapper span for the highlighted text
+          const highlightSpan = document.createElement("span");
+          highlightSpan.style.backgroundColor = color || "yellow";
+          highlightSpan.textContent = highlightedText;
+          highlightSpan.title = comment;
+          highlightSpan.id = highlightId; // Assign the unique ID
+
+          // Add click-to-scroll behavior
+          highlightSpan.addEventListener("click", (e) => {
+              e.preventDefault();
+              highlightSpan.scrollIntoView({ behavior: "smooth", block: "center" });
+          });
+
+          // Replace the original text in the DOM
+          const newContent = document.createDocumentFragment();
+          newContent.appendChild(document.createTextNode(beforeText));
+          newContent.appendChild(highlightSpan);
+          newContent.appendChild(document.createTextNode(afterText));
+          element.innerHTML = ""; // Clear the element
+          element.appendChild(newContent);
+
+          // Add the comment to the side panel
+          const commentEntry = document.createElement("div");
+          commentEntry.style.marginBottom = "10px";
+          commentEntry.style.borderBottom = "1px solid #ddd";
+          commentEntry.style.paddingBottom = "10px";
+
+          // Add clickable link to navigate to highlighted text
+          const commentLink = document.createElement("a");
+          commentLink.href = `#${highlightId}`; // Link to the highlighted text
+          commentLink.style.textDecoration = "none";
+          commentLink.style.color = "inherit";
+
+          // Add a smooth scrolling behavior when clicking on the comment
+          commentLink.addEventListener("click", (e) => {
+              e.preventDefault();
+              const targetElement = document.getElementById(highlightId);
+              if (targetElement) {
+                  targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
+              }
+          });
+
+          // Format comment in the desired style
+          const formattedComment = document.createElement("div");
+          formattedComment.style.whiteSpace = "pre-line";
+
+          // Add username
+          const usernameDisplay = document.createElement("p");
+          usernameDisplay.textContent = `@${username}:`;
+          usernameDisplay.style.fontWeight = "bold";
+          usernameDisplay.style.marginBottom = "5px";
+
+          // Add timestamp
+          const timestamp = new Date().toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true,
+          }) + ` ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+          const timestampDisplay = document.createElement("p");
+          timestampDisplay.textContent = timestamp;
+          timestampDisplay.style.color = "#555";
+          timestampDisplay.style.fontSize = "12px";
+          timestampDisplay.style.marginBottom = "5px";
+
+          // Add the selected text (with italics and highlight)
+          const highlightedTextDisplay = document.createElement("p");
+          highlightedTextDisplay.textContent = highlightedText; // Display the selected text
+          highlightedTextDisplay.style.marginBottom = "5px";
+          highlightedTextDisplay.style.fontStyle = "italic";
+          highlightedTextDisplay.style.backgroundColor = color || "yellow";
+          highlightedTextDisplay.style.padding = "2px 4px";
+          highlightedTextDisplay.style.borderRadius = "4px";
+
+          // Add the comment text
+          const commentText = document.createElement("p");
+          commentText.textContent = comment; // Show the user's comment
+          commentText.style.marginBottom = "5px";
+
+          // Append elements to formatted comment
+          formattedComment.appendChild(usernameDisplay);
+          formattedComment.appendChild(timestampDisplay);
+          formattedComment.appendChild(commentText);
+          formattedComment.appendChild(highlightedTextDisplay);
+
+          // Append formatted comment to the clickable link
+          commentLink.appendChild(formattedComment);
+
+          // Append the comment entry to the side panel
+          commentEntry.appendChild(commentLink);
+          sidePanel.appendChild(commentEntry);
+      }
+      
+  });
+}
+
+
+
+
+/*
 
 function wrapTextInSpan(cssSelector, selectedText, textOffsetStart, textOffsetEnd, comment, username, color) {
   // Select the element using the CSS selector
@@ -174,6 +351,7 @@ function wrapTextInSpan(cssSelector, selectedText, textOffsetStart, textOffsetEn
     }
   }
 }
+*/
 
   // function wrapTextInSpan(cssSelector, selectedText, textOffsetStart, textOffsetEnd, comment, username, color) {
   //   // Select the element using the CSS selector
