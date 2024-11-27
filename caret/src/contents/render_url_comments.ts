@@ -51,178 +51,167 @@ window.addEventListener("load", async () => {
 
 
 function wrapTextInSpan(cssSelector, selectedText, textOffsetStart, textOffsetEnd, comment, username, color) {
-  // Find or create the side panel
-  let sidePanel = document.getElementById("comment-popup");
-  let toggleButton = document.getElementById("toggle-sidebar");
-  if (!sidePanel) {
-      sidePanel = document.createElement("div");
-      sidePanel.id = "comment-popup";
-      sidePanel.style.position = "fixed";
-      sidePanel.style.bottom = "10px";
-      sidePanel.style.right = "10px";
-      sidePanel.style.width = "300px";
-      sidePanel.style.maxHeight = "400px";
-      sidePanel.style.overflowY = "auto";
-      sidePanel.style.backgroundColor = "#f8f9fa";
-      sidePanel.style.border = "1px solid #ccc";
-      sidePanel.style.borderRadius = "8px";
-      sidePanel.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
-      sidePanel.style.zIndex = "10000";
-      sidePanel.style.padding = "10px";
-      document.body.appendChild(sidePanel);
+  // Adjust the body content to make room for the sidebar
+  document.body.style.marginRight = "300px";
 
-      // Add minimize/maximize button
-      toggleButton = document.createElement("button");
-      toggleButton.id = "toggle-sidebar";
-      toggleButton.textContent = "-";
-      toggleButton.style.position = "absolute";
-      toggleButton.style.top = "5px";
-      toggleButton.style.right = "5px";
-      toggleButton.style.border = "1px solid #ccc";
-      toggleButton.style.borderRadius = "4px";
-      toggleButton.style.background = "white";
-      toggleButton.style.cursor = "pointer";
-      toggleButton.style.fontSize = "14px";
-      toggleButton.style.padding = "2px 6px";
-      toggleButton.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.1)";
-      toggleButton.style.transition = "all 0.3s ease";
-      toggleButton.addEventListener("mouseover", () => {
-        toggleButton.style.background = "#f1f1f1";
-      });
-      toggleButton.addEventListener("mouseout", () => {
-        toggleButton.style.background = "white";
-      });
-      sidePanel.appendChild(toggleButton);
+  // Find or create the sidebar
+  let sidebar = document.getElementById("comment-sidebar");
+  if (!sidebar) {
+    sidebar = document.createElement("div");
+    sidebar.id = "comment-sidebar";
+    sidebar.style.position = "fixed";
+    sidebar.style.top = "0";
+    sidebar.style.right = "0";
+    sidebar.style.width = "300px";
+    sidebar.style.height = "100%";
+    sidebar.style.overflowY = "auto"; // Enable scrolling for the sidebar
+    sidebar.style.backgroundColor = "white"; // Matches the page's background
+    sidebar.style.borderLeft = "1px solid #ddd";
+    sidebar.style.zIndex = "10000";
+    sidebar.style.padding = "10px";
+    sidebar.style.boxSizing = "border-box";
+    document.body.appendChild(sidebar);
 
-      // Add event listener for minimize/maximize functionality
-      toggleButton.addEventListener("click", () => {
-        if (sidePanel.style.display !== "none") {
-          sidePanel.style.display = "none"; // Hide the sidebar
-          toggleButton.textContent = "+"; // Update button to maximize
-          toggleButton.style.display = "block"; // Ensure button remains visible
-          toggleButton.style.position = "fixed"; // Keep button fixed
-          toggleButton.style.right = "10px";
-          toggleButton.style.bottom = "10px";
-          document.body.appendChild(toggleButton); // Reattach button to body
-        } else {
-          sidePanel.style.display = "block"; // Show the sidebar
-          toggleButton.textContent = "-"; // Update button to minimize
-          toggleButton.style.position = "absolute"; // Reposition button back to the sidebar
-          toggleButton.style.top = "5px";
-          toggleButton.style.right = "5px";
-          sidePanel.appendChild(toggleButton); // Reattach button to the sidebar
-        }
-      });
-  } 
+    // Add a title to the sidebar
+    const sidebarTitle = document.createElement("div");
+    sidebarTitle.textContent = "Caret Comments";
+    sidebarTitle.style.fontSize = "18px";
+    sidebarTitle.style.fontWeight = "bold";
+    sidebarTitle.style.marginBottom = "10px";
+    sidebarTitle.style.borderBottom = "2px solid #ddd";
+    sidebarTitle.style.paddingBottom = "10px";
+    sidebarTitle.style.textAlign = "center";
+    sidebar.appendChild(sidebarTitle);
+  }
 
   // Highlight the selected text on the webpage
   const elements = document.querySelectorAll(cssSelector);
   elements.forEach((element, index) => {
-      const text = element.textContent;
-      if (text) {
-          const beforeText = text.slice(0, textOffsetStart);
-          const highlightedText = text.slice(textOffsetStart, textOffsetEnd);
-          const afterText = text.slice(textOffsetEnd);
+    const text = element.textContent;
+    if (text) {
+      const beforeText = text.slice(0, textOffsetStart);
+      const highlightedText = text.slice(textOffsetStart, textOffsetEnd);
+      const afterText = text.slice(textOffsetEnd);
 
-          // Create a unique ID for the highlighted text
-          const highlightId = `highlight-${Date.now()}-${index}`;
+      // Create a unique ID for the highlighted text
+      const highlightId = `highlight-${Date.now()}-${index}`;
 
-          // Create a wrapper span for the highlighted text
-          const highlightSpan = document.createElement("span");
-          highlightSpan.style.backgroundColor = color || "yellow";
-          highlightSpan.textContent = highlightedText;
-          highlightSpan.title = comment;
-          highlightSpan.id = highlightId; // Assign the unique ID
+      // Create a wrapper span for the highlighted text
+      const highlightSpan = document.createElement("span");
+      highlightSpan.style.backgroundColor = color || "yellow";
+      highlightSpan.textContent = highlightedText;
+      highlightSpan.id = highlightId; // Assign the unique ID
 
-          // Add click-to-scroll behavior
-          highlightSpan.addEventListener("click", (e) => {
-              e.preventDefault();
-              highlightSpan.scrollIntoView({ behavior: "smooth", block: "center" });
-          });
+      // Replace the original text in the DOM
+      const newContent = document.createDocumentFragment();
+      newContent.appendChild(document.createTextNode(beforeText));
+      newContent.appendChild(highlightSpan);
+      newContent.appendChild(document.createTextNode(afterText));
+      element.innerHTML = ""; // Clear the element
+      element.appendChild(newContent);
 
-          // Replace the original text in the DOM
-          const newContent = document.createDocumentFragment();
-          newContent.appendChild(document.createTextNode(beforeText));
-          newContent.appendChild(highlightSpan);
-          newContent.appendChild(document.createTextNode(afterText));
-          element.innerHTML = ""; // Clear the element
-          element.appendChild(newContent);
+      // Create the comment bubble
+      const commentBubble = document.createElement("div");
+      commentBubble.style.position = "absolute"; // Allow precise placement
+      commentBubble.style.width = "280px";
+      commentBubble.style.marginBottom = "10px";
+      commentBubble.style.border = "1px solid #ccc";
+      commentBubble.style.borderRadius = "8px";
+      commentBubble.style.backgroundColor = "#f8f9fa";
+      commentBubble.style.padding = "10px";
+      commentBubble.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
+      commentBubble.style.zIndex = "10001";
 
-          // Add the comment to the side panel
-          const commentEntry = document.createElement("div");
-          commentEntry.style.marginBottom = "10px";
-          commentEntry.style.borderBottom = "1px solid #ddd";
-          commentEntry.style.paddingBottom = "10px";
+      // Add a highlight effect class to the bubble
+      commentBubble.classList.add("comment-bubble");
 
-          // Add clickable link to navigate to highlighted text
-          const commentLink = document.createElement("a");
-          commentLink.href = `#${highlightId}`; // Link to the highlighted text
-          commentLink.style.textDecoration = "none";
-          commentLink.style.color = "inherit";
+      // Add content to the comment bubble
+      const usernameDisplay = document.createElement("p");
+      usernameDisplay.textContent = `@${username}`;
+      usernameDisplay.style.fontWeight = "bold";
+      usernameDisplay.style.marginBottom = "5px";
 
-          // Add a smooth scrolling behavior when clicking on the comment
-          commentLink.addEventListener("click", (e) => {
-              e.preventDefault();
-              const targetElement = document.getElementById(highlightId);
-              if (targetElement) {
-                  targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
-              }
-          });
+      const timestamp = new Date().toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }) + ` ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+      const timestampDisplay = document.createElement("p");
+      timestampDisplay.textContent = timestamp;
+      timestampDisplay.style.color = "#555";
+      timestampDisplay.style.fontSize = "12px";
+      timestampDisplay.style.marginBottom = "5px";
 
-          // Format comment in the desired style
-          const formattedComment = document.createElement("div");
-          formattedComment.style.whiteSpace = "pre-line";
+      const commentText = document.createElement("p");
+      commentText.textContent = comment;
 
-          // Add username
-          const usernameDisplay = document.createElement("p");
-          usernameDisplay.textContent = `@${username}:`;
-          usernameDisplay.style.fontWeight = "bold";
-          usernameDisplay.style.marginBottom = "5px";
+      // Append username, timestamp, and comment to the bubble
+      commentBubble.appendChild(usernameDisplay);
+      commentBubble.appendChild(timestampDisplay);
+      commentBubble.appendChild(commentText);
 
-          // Add timestamp
-          const timestamp = new Date().toLocaleTimeString('en-US', {
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: true,
-          }) + ` ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-          const timestampDisplay = document.createElement("p");
-          timestampDisplay.textContent = timestamp;
-          timestampDisplay.style.color = "#555";
-          timestampDisplay.style.fontSize = "12px";
-          timestampDisplay.style.marginBottom = "5px";
+      // Append the bubble to the sidebar
+      sidebar.appendChild(commentBubble);
 
-          // Add the selected text (with italics and highlight)
-          const highlightedTextDisplay = document.createElement("p");
-          highlightedTextDisplay.textContent = highlightedText; // Display the selected text
-          highlightedTextDisplay.style.marginBottom = "5px";
-          highlightedTextDisplay.style.fontStyle = "italic";
-          highlightedTextDisplay.style.backgroundColor = color || "yellow";
-          highlightedTextDisplay.style.padding = "2px 4px";
-          highlightedTextDisplay.style.borderRadius = "4px";
+      // Synchronize position with the highlighted text
+      const syncPosition = () => {
+        const rect = highlightSpan.getBoundingClientRect();
+        const pageOffset = window.scrollY + rect.top;
 
-          // Add the comment text
-          const commentText = document.createElement("p");
-          commentText.textContent = comment; // Show the user's comment
-          commentText.style.marginBottom = "5px";
+        // Adjust the bubble's position relative to the sidebar
+        const sidebarRect = sidebar.getBoundingClientRect();
+        const relativeTop = pageOffset - window.scrollY;
 
-          // Append elements to formatted comment
-          formattedComment.appendChild(usernameDisplay);
-          formattedComment.appendChild(timestampDisplay);
-          formattedComment.appendChild(commentText);
-          formattedComment.appendChild(highlightedTextDisplay);
+        commentBubble.style.top = `${relativeTop}px`;
+      };
 
-          // Append formatted comment to the clickable link
-          commentLink.appendChild(formattedComment);
+      // Initial positioning
+      syncPosition();
 
-          // Append the comment entry to the side panel
-          commentEntry.appendChild(commentLink);
-          sidePanel.appendChild(commentEntry);
-      }
-      
+      // Update position on scroll
+      window.addEventListener("scroll", syncPosition);
+
+      // Highlight the comment bubble on hover
+      highlightSpan.addEventListener("mouseover", () => {
+        commentBubble.style.backgroundColor = "#e3f2fd"; // Light blue background
+        commentBubble.style.border = "1px solid #2196f3"; // Blue border
+      });
+
+      // Remove highlight when the mouse leaves the highlighted text
+      highlightSpan.addEventListener("mouseout", () => {
+        commentBubble.style.backgroundColor = "#f8f9fa"; // Reset background
+        commentBubble.style.border = "1px solid #ccc"; // Reset border
+      });
+
+      // Highlight the comment bubble when the highlighted text is clicked
+      highlightSpan.addEventListener("click", () => {
+        commentBubble.scrollIntoView({ behavior: "smooth", block: "center" });
+        commentBubble.style.backgroundColor = "#d1e7fd"; // Highlight background
+        setTimeout(() => {
+          commentBubble.style.backgroundColor = "#f8f9fa"; // Reset background after a delay
+        }, 2000);
+      });
+
+      // Highlight the text when the comment bubble is clicked
+      commentBubble.addEventListener("click", () => {
+        highlightSpan.scrollIntoView({ behavior: "smooth", block: "center" });
+        highlightSpan.style.backgroundColor = "#d1e7fd"; // Highlight background
+        setTimeout(() => {
+          highlightSpan.style.backgroundColor = color || "yellow"; // Reset background after a delay
+        }, 2000);
+      });
+
+      // Highlight the text when hovering over the comment bubble
+      commentBubble.addEventListener("mouseover", () => {
+        highlightSpan.style.backgroundColor = "#d1e7fd"; // Highlight background
+      });
+
+      commentBubble.addEventListener("mouseout", () => {
+        highlightSpan.style.backgroundColor = color || "yellow"; // Reset background
+      });
+    }
   });
 }
-
-
 
 
 /*
