@@ -1,20 +1,14 @@
-import type { PlasmoGetInlineAnchor } from "plasmo";
 import { sendToBackground } from "@plasmohq/messaging";
-import React, { useState } from "react";
-import { wrap } from "module";
-import { start } from "repl";
-
-export {};
 
 let comments = [];
-const userColor = "#FFD700"; // Gold color for user comments
-const followerColors = {}; // Store unique colors for followers
+const userColor = "#FFD700";
+const followerColors = {};
 const colorPalette = [
-  "#ADD8E6", // Light blue
-  "#90EE90", // Light green
-  "#FFB6C1", // Light pink
-  "#FFA07A", // Light salmon
-  "#9370DB", // Medium purple
+  "#ADD8E6",
+  "#90EE90",
+  "#FFB6C1",
+  "#FFA07A",
+  "#9370DB",
 ];
 
 const assignFollowerColor = (owner_id) => {
@@ -34,7 +28,6 @@ const assignFollowerColor = (owner_id) => {
   return followerColors[owner_id];
 };
 
-
 async function get_and_display_comments() {
   let response = await sendToBackground({
     name: "get_url_comments",
@@ -43,9 +36,8 @@ async function get_and_display_comments() {
     },
   });
 
-  const mainUserId = "main_user"; // Replace with logic to get the main user's ID
+  const mainUserId = "main_user"; 
 
-  // Derive `isFollowerComment` for each comment
   const commentsWithFollowerFlag = response.comments.map((comment) => {
     return {
       ...comment,
@@ -81,7 +73,6 @@ async function get_and_display_comments() {
   comments = commentsWithFollowerFlag;
 }
 
-
 window.addEventListener("load", async () => {
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "refresh_comments") {
@@ -90,14 +81,6 @@ window.addEventListener("load", async () => {
   });
   get_and_display_comments();
 });
-
-const filterOutTooltips = (node) => {
-  if (node.nodeType === Node.TEXT_NODE || node.className !== "caretTooltip") {
-    return NodeFilter.FILTER_ACCEPT;
-  } else {
-    return NodeFilter.FILTER_REJECT;
-  }
-};
 
 function wrapTextInSpan(
   cssSelector,
@@ -108,6 +91,19 @@ function wrapTextInSpan(
   username,
   color
 ) {
+  const toRgba = (color, alpha) => {
+    if (color.startsWith("#")) {
+      const bigint = parseInt(color.slice(1), 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    } else if (color.startsWith("rgb")) {
+      return color.replace("rgb", "rgba").replace(")", `, ${alpha})`);
+    }
+    return color;
+  };
+
   document.body.style.marginRight = "300px";
 
   let sidebar = document.getElementById("comment-sidebar");
@@ -119,7 +115,8 @@ function wrapTextInSpan(
     sidebar.style.right = "0";
     sidebar.style.width = "300px";
     sidebar.style.height = "100%";
-    sidebar.style.overflow = "hidden"; // Prevents sidebar scrolling
+    sidebar.style.overflowY = "hidden";
+    sidebar.style.scrollBehavior = "smooth";
     sidebar.style.backgroundColor = "white";
     sidebar.style.borderLeft = "1px solid #ddd";
     sidebar.style.zIndex = "10000";
@@ -152,7 +149,7 @@ function wrapTextInSpan(
       const highlightId = `highlight-${Date.now()}-${index}`;
 
       const highlightSpan = document.createElement("span");
-      highlightSpan.style.backgroundColor = color;
+      highlightSpan.style.backgroundColor = toRgba(color, 0.3); 
       highlightSpan.textContent = highlightedText;
       highlightSpan.id = highlightId;
 
@@ -167,9 +164,9 @@ function wrapTextInSpan(
       commentBubble.style.position = "absolute";
       commentBubble.style.width = "280px";
       commentBubble.style.marginBottom = "10px";
-      commentBubble.style.border = "1px solid ";
+      commentBubble.style.border = `1px solid ${color}`;
       commentBubble.style.borderRadius = "8px";
-      commentBubble.style.backgroundColor = "#f8f9fa";
+      commentBubble.style.backgroundColor = toRgba(color, 0.1); 
       commentBubble.style.padding = "10px";
       commentBubble.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
       commentBubble.style.zIndex = "10001";
@@ -203,7 +200,6 @@ function wrapTextInSpan(
       const syncPosition = () => {
         const rect = highlightSpan.getBoundingClientRect();
         const pageOffset = window.scrollY + rect.top;
-        const sidebarRect = sidebar.getBoundingClientRect();
         const relativeTop = pageOffset - window.scrollY;
 
         commentBubble.style.top = `${relativeTop}px`;
@@ -213,28 +209,46 @@ function wrapTextInSpan(
       window.addEventListener("scroll", syncPosition);
 
       highlightSpan.addEventListener("mouseover", () => {
-        commentBubble.style.backgroundColor = "#e3f2fd";
-        commentBubble.style.border = "1px solid #2196f3";
+        highlightSpan.style.backgroundColor = toRgba(color, 1); 
+        commentBubble.style.backgroundColor = toRgba(color, 1); 
+        commentBubble.style.border = `2px solid ${color}`; 
+        commentBubble.style.boxShadow = "0 6px 12px rgba(0, 0, 0, 0.2)"; 
       });
 
       highlightSpan.addEventListener("mouseout", () => {
-        commentBubble.style.backgroundColor = "#f8f9fa";
-        commentBubble.style.border = "1px solid #ccc";
+        highlightSpan.style.backgroundColor = toRgba(color, 0.3); 
+        commentBubble.style.backgroundColor = toRgba(color, 0.1); 
+        commentBubble.style.border = `1px solid ${color}`; 
+        commentBubble.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)"; 
       });
 
       highlightSpan.addEventListener("click", () => {
         commentBubble.scrollIntoView({ behavior: "smooth", block: "center" });
-        commentBubble.style.backgroundColor = "#d1e7fd";
+        highlightSpan.style.backgroundColor = toRgba(color, 1); 
         setTimeout(() => {
-          commentBubble.style.backgroundColor = "#f8f9fa";
+          highlightSpan.style.backgroundColor = toRgba(color, 0.3); 
         }, 2000);
+      });
+
+      commentBubble.addEventListener("mouseover", () => {
+        highlightSpan.style.backgroundColor = toRgba(color, 1); 
+        commentBubble.style.backgroundColor = toRgba(color, 1); 
+        commentBubble.style.border = `2px solid ${color}`; 
+        commentBubble.style.boxShadow = "0 6px 12px rgba(0, 0, 0, 0.2)"; 
+      })
+
+      commentBubble.addEventListener("mouseout", () => {
+        highlightSpan.style.backgroundColor = toRgba(color, 0.3); 
+        commentBubble.style.backgroundColor = toRgba(color, 0.1); 
+        commentBubble.style.border = `1px solid ${color}`; 
+        commentBubble.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)"; 
       });
 
       commentBubble.addEventListener("click", () => {
         highlightSpan.scrollIntoView({ behavior: "smooth", block: "center" });
-        highlightSpan.style.backgroundColor = "#d1e7fd";
+        highlightSpan.style.backgroundColor = toRgba(color, 1); 
         setTimeout(() => {
-          highlightSpan.style.backgroundColor = color;
+          highlightSpan.style.backgroundColor = toRgba(color, 0.3); 
         }, 2000);
       });
     }
