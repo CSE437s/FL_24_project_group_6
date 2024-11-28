@@ -64,15 +64,13 @@ function wrapTextInSpan(cssSelector, selectedText, textOffsetStart, textOffsetEn
     sidebar.style.right = "0";
     sidebar.style.width = "300px";
     sidebar.style.height = "100%";
-    sidebar.style.overflowY = "auto"; // Enable scrolling for the sidebar
+    sidebar.style.overflow = "hidden"; // Prevents sidebar scrolling
     sidebar.style.backgroundColor = "white"; // Matches the page's background
     sidebar.style.borderLeft = "1px solid #ddd";
     sidebar.style.zIndex = "10000";
     sidebar.style.padding = "10px";
-    sidebar.style.boxSizing = "border-box";
     document.body.appendChild(sidebar);
 
-    // Add a title to the sidebar
     const sidebarTitle = document.createElement("div");
     sidebarTitle.textContent = "Caret Comments";
     sidebarTitle.style.fontSize = "18px";
@@ -81,6 +79,10 @@ function wrapTextInSpan(cssSelector, selectedText, textOffsetStart, textOffsetEn
     sidebarTitle.style.borderBottom = "2px solid #ddd";
     sidebarTitle.style.paddingBottom = "10px";
     sidebarTitle.style.textAlign = "center";
+    sidebarTitle.style.backgroundColor = "#f8f9fa";
+    sidebarTitle.style.position = "sticky";
+    sidebarTitle.style.top = "0";
+    sidebarTitle.style.zIndex = "10001";
     sidebar.appendChild(sidebarTitle);
   }
 
@@ -131,24 +133,28 @@ function wrapTextInSpan(cssSelector, selectedText, textOffsetStart, textOffsetEn
       usernameDisplay.style.fontWeight = "bold";
       usernameDisplay.style.marginBottom = "5px";
 
+      const commentText = document.createElement("p");
+      commentText.textContent = comment;
+
+      // Add a timestamp to the comment bubble
       const timestamp = new Date().toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: true,
       }) + ` ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+
       const timestampDisplay = document.createElement("p");
       timestampDisplay.textContent = timestamp;
       timestampDisplay.style.color = "#555";
       timestampDisplay.style.fontSize = "12px";
+      timestampDisplay.style.marginTop = "5px";
       timestampDisplay.style.marginBottom = "5px";
 
-      const commentText = document.createElement("p");
-      commentText.textContent = comment;
-
-      // Append username, timestamp, and comment to the bubble
+      // Append username and comment to the bubble
       commentBubble.appendChild(usernameDisplay);
       commentBubble.appendChild(timestampDisplay);
       commentBubble.appendChild(commentText);
+      
 
       // Append the bubble to the sidebar
       sidebar.appendChild(commentBubble);
