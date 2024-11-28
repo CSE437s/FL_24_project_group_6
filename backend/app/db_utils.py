@@ -3,7 +3,6 @@ from passlib.context import CryptContext
 from sqlalchemy import and_
 from enum import Enum
 from fastapi import HTTPException, status
-
 from . import models, schemas
 
 ## user utils
@@ -129,6 +128,12 @@ def get_self_url_comments(db: Session, url: str, user_id: int):
     ]
 
 def get_self_and_following_url_comments(db: Session, url: str, user_id: int):
+    user = get_user(db=db, user_id=user_id)
+    if user is None: 
+        raise HTTPException(
+            status_code=404,
+            detail=f"User with ID '{user_id}' not found"
+        )
     followers = get_following(db=db, user_id=user_id)
     follower_ids = [user.id for user in followers]
     print(follower_ids)
@@ -161,22 +166,55 @@ def update_password(db: Session, user: models.User, new_password: str):
 # Follower utilities
 
 def get_followers(db: Session, user_id: int):
-    """Get all followers of a user."""
-    return db.query(models.User).filter(models.User.id.in_(
-        db.query(models.followers_association.c.follower_id)
-          .filter(models.followers_association.c.followee_id == user_id)
-    )).all()
+    """
+    Get all followers of a user. Return an empty list if the user has no followers.
+    """
+    follower_ids = db.query(models.followers_association.c.follower_id)\
+        .filter(models.followers_association.c.followee_id == user_id)\
+        .all()
+    
+    if not follower_ids:  # Check for empty list
+        return []  # Return empty list if no followers
+
+    return db.query(models.User).filter(models.User.id.in_([f.id for f in follower_ids])).all()
 
 def follow_user_by_username(db: Session, follower_id: int, followee_username: str):
-    """Follow a user by their username."""
+    """
+    Follow a user by their username. Ensure the followee exists.
+    """
     user = get_user_by_username(db=db, username=followee_username)
+    if user is None:  # Validate before accessing attributes
+        raise HTTPException(
+            status_code=404,
+            detail=f"User with username '{followee_username}' not found"
+        )
     follow_user(db=db, follower_id=follower_id, followee_id=user.id)
 
 def follow_user(db: Session, follower_id: int, followee_id: int):
-    """Follow a user."""
+    """
+    Follow a user. Ensure both users exist and prevent duplicates or self-following.
+    """
     if follower_id == followee_id:
-        return None  # Prevent self-following
-
+        raise HTTPException(
+            status_code=400,
+            detail="You cannot follow yourself"
+        )
+    
+    # Explicitly validate users
+    follower = get_user(db=db, user_id=follower_id)
+    if not follower:
+        raise HTTPException(
+            status_code=404,
+            detail=f"User with ID {follower_id} not found"
+        )
+    
+    followee = get_user(db=db, user_id=followee_id)
+    if not followee:
+        raise HTTPException(
+            status_code=404,
+            detail=f"User with ID {followee_id} not found"
+        )
+    
     # Check if already following
     if db.query(models.followers_association).filter(
         and_(
@@ -184,21 +222,26 @@ def follow_user(db: Session, follower_id: int, followee_id: int):
             models.followers_association.c.followee_id == followee_id
         )
     ).first():
-        return None  # Already following
-
+        raise HTTPException(
+            status_code=400,
+            detail="Already following this user"
+        )
+    
     # Create follow relationship
-    db.execute(models.followers_association.insert().values(follower_id=follower_id, followee_id=followee_id))
+    db.execute(
+        models.followers_association.insert().values(
+            follower_id=follower_id, followee_id=followee_id
+        )
+    )
     db.commit()
 
-def unfollow_user(db: Session, follower_id: int, followee_id: int):
-    """Unfollow a user."""
-    db.query(models.followers_association).filter(
+def check_if_following(db: Session, follower_id: int, followee_id: int) -> bool:
+    return db.query(models.followers_association).filter(
         and_(
             models.followers_association.c.follower_id == follower_id,
             models.followers_association.c.followee_id == followee_id
         )
-    ).delete()
-    db.commit()
+    ).first() is not None
 
 def get_following(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id.in_(

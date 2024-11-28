@@ -262,17 +262,34 @@ async def follow_user(
     followee_id: int,
     db: Session = Depends(get_db)
 ):
-    """Follow a user."""
+    if followee_id == current_user.id:
+        raise HTTPException(
+            status_code=400, detail="You cannot follow yourself."
+        )
+    
+    followee = db_utils.get_user(db=db, user_id=followee_id)
+    if not followee:
+        raise HTTPException(
+            status_code=404, detail="User not found."
+        )
+
+    already_following = db_utils.check_if_following(db=db, follower_id=current_user.id, followee_id=followee_id)
+    if already_following:
+        raise HTTPException(
+            status_code=400, detail="You are already following this user."
+        )
+
     db_utils.follow_user(db=db, follower_id=current_user.id, followee_id=followee_id)
-    return {"message": "User followed."}
+    return {"message": "User followed successfully."}
 
 
 @app.post("/users/me/follow_by_username/{followee_username}", response_model=dict)
-async def follow_user(
+async def follow_user_by_username(
     current_user: Annotated[schemas.User, Depends(get_current_active_user)],
     followee_username: str,
     db: Session = Depends(get_db)
 ):
+<<<<<<< Updated upstream
     """Follow a user."""
     followee = db_utils.get_user_by_username(db=db, username=followee_username)
     if followee is None: 
@@ -280,6 +297,27 @@ async def follow_user(
     else: 
         db_utils.follow_user_by_username(db=db, follower_id=current_user.id, followee_username=followee_username)
         return {"message": "User followed."}
+=======
+    if followee_username == current_user.username:
+        raise HTTPException(
+            status_code=400, detail="You cannot follow yourself."
+        )
+    
+    followee = db_utils.get_user_by_username(db=db, username=followee_username)
+    if not followee:
+        raise HTTPException(
+            status_code=404, detail="User does not exist."
+        )
+
+    already_following = db_utils.check_if_following(db=db, follower_id=current_user.id, followee_id=followee.id)
+    if already_following:
+        raise HTTPException(
+            status_code=400, detail="You are already following this user."
+        )
+
+    db_utils.follow_user(db=db, follower_id=current_user.id, followee_id=followee.id)
+    return {"message": "User followed successfully."}
+>>>>>>> Stashed changes
 
 @app.delete("/users/me/unfollow/{followee_id}", response_model=dict)
 async def unfollow_user(

@@ -15,7 +15,11 @@ export const Profile = ({ user, setIsLoggedIn}) => {
   const [username, setUsername] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [followingNotif, setFollowingNotif] = useState("");
+<<<<<<< Updated upstream
   const [followingNotifType, setFollowingNotifType] = useState("success");
+=======
+  const [followingNotifType, setFollowingNotifType] = useState(""); 
+>>>>>>> Stashed changes
   const [followers, setFollowers] = useState([0]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -56,6 +60,7 @@ export const Profile = ({ user, setIsLoggedIn}) => {
   };
   const handleFollowUser = async () => {
     console.log("hi!")
+<<<<<<< Updated upstream
     if (!username || username == ''){
       setUsernameError("Please enter a username.")
       return;
@@ -71,6 +76,18 @@ export const Profile = ({ user, setIsLoggedIn}) => {
       setFollowingNotif(error.response?.data?.detail || `Failed to follow ${username}. Please try again.`);
       setFollowingNotifType("error");
     }
+=======
+    try{
+      await follow_by_username(username)
+      setFollowingNotif("Successfully followed " + username); 
+      setFollowingNotifType("success"); 
+    }
+    catch(error){
+      setFollowingNotif(error.reponse?.data?.detail ?? ("Failed to follow " + username + " with error code " + error.status));
+      setFollowingNotifType("error"); 
+    }
+    
+>>>>>>> Stashed changes
   }
 
   return (
@@ -84,7 +101,11 @@ export const Profile = ({ user, setIsLoggedIn}) => {
   <p className="text-2xl font-bold">{user}</p>
   <p className = "text-sm  text-gray-400">{followers.length} followers</p>
   </div>
+<<<<<<< Updated upstream
     </div>
+=======
+  </div>
+>>>>>>> Stashed changes
     {followingNotif && (
       <div className={`relative p-3 rounded-md shadow-md mb-4 ${
         followingNotifType === "success" ? "bg-blue-100 text-blue-500" : "bg-red-100 text-red-500"
@@ -97,6 +118,10 @@ export const Profile = ({ user, setIsLoggedIn}) => {
         </button>
       </div>
     )}
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
   
   </div>
     <div>
