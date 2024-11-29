@@ -68,6 +68,7 @@ const CommentInputForm = () => {
             });
             console.log(resp);
             setIsMounted(false);
+            setComment(""); 
         } else {
             setCommentError("Comment cannot be empty.");
         }
