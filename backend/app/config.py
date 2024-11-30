@@ -10,5 +10,5 @@ class Settings(BaseSettings):
     EMAIL_FROM: str = "caret.reset@gmail.com"
     EMAIL_PASSWORD: str
     EMAIL_FROM_NAME: str = "Caret" 
-    model_config = SettingsConfigDict(env_file=find_dotenv('.env'))
+    model_config = SettingsConfigDict(env_file=find_dotenv('./example.env'))
     

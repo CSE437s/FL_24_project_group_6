@@ -71,6 +71,30 @@ async function get_and_display_comments() {
   }
 
   comments = commentsWithFollowerFlag;
+  repositionCommentBubbles(); // Reposition comment bubbles after adding new comments
+}
+
+function repositionCommentBubbles() {
+  const sidebar = document.getElementById("comment-sidebar");
+  if (!sidebar) return;
+
+  const commentBubbles = Array.from(sidebar.children).filter(
+    (child) => child !== sidebar.firstChild
+  );
+
+  let lastBubbleBottom = 0;
+
+  commentBubbles.forEach((bubble) => {
+    const bubbleRect = bubble.getBoundingClientRect();
+    const bubbleTop = bubbleRect.top + window.scrollY;
+
+    if (bubbleTop < lastBubbleBottom) {
+      const overlap = lastBubbleBottom - bubbleTop;
+      (bubble as HTMLElement).style.top = `${bubbleTop + overlap}px`;
+    }
+
+    lastBubbleBottom = bubble.getBoundingClientRect().bottom + window.scrollY + 10; // 10px margin
+  });
 }
 
 window.addEventListener("load", async () => {
@@ -81,6 +105,17 @@ window.addEventListener("load", async () => {
   });
   get_and_display_comments();
 });
+
+// Debounce function to limit the rate at which repositionCommentBubbles is called
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+window.addEventListener("scroll", debounce(repositionCommentBubbles, 100));
 
 function wrapTextInSpan(
   cssSelector,
@@ -253,4 +288,5 @@ function wrapTextInSpan(
       });
     }
   });
+
 }
