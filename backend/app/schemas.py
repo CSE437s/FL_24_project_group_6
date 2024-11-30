@@ -30,6 +30,9 @@ class CommentInDB(Comment):
     class Config:
         orm_mode = True
 
+class CommentUpdate(BaseModel):
+    text: str
+
 class User(BaseModel):
     username: str
     email: str | None = None

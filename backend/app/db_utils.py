@@ -33,7 +33,6 @@ def authenticate_user(db: Session, username: str, password: str):
         return False
     return user
 
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain_password, hashed_password):
@@ -44,7 +43,22 @@ def get_password_hash(password):
 
 ## Comment utils
 def create_user_comment(db: Session, comment: schemas.CommentCreate, user_id: int):
-    db_comment = models.Comment(**comment.model_dump(), owner_id=user_id)
+    if comment.parent_id:
+        # Validate that the parent comment exists
+        parent_comment = db.query(models.Comment).filter(models.Comment.id == comment.parent_id).first()
+        if not parent_comment:
+            raise HTTPException(status_code=404, detail="Parent comment not found")
+    
+    db_comment = models.Comment(
+        text=comment.text,
+        url=comment.url,
+        css_selector=comment.css_selector,
+        selected_text=comment.selected_text,
+        text_offset_start=comment.text_offset_start,
+        text_offset_end=comment.text_offset_end,
+        parent_id=comment.parent_id,  # Add parent_id if it's a reply
+        owner_id=user_id
+    )
     db.add(db_comment)
     db.commit()
     db.refresh(db_comment)
@@ -68,31 +82,24 @@ def delete_comment(db: Session, comment_id: int, user_id: int):
     
     return {"message": "Comment deleted successfully"}
 
+def edit_comment(db: Session, comment_id: int, user_id: int, new_text: str):
+    comment = db.query(models.Comment).filter(models.Comment.id == comment_id).first()
+    if comment is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found")
+    if comment.owner_id != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to edit this comment")
+    
+    comment.text = new_text
+    db.commit()
+    db.refresh(comment)  
+
+    return {"message": "Comment edited successfully"}
+
 def get_user_comments(db: Session, user_id: int):
     comments_with_username = db.query(models.Comment, models.User.username)\
-             .join(models.User, models.Comment.owner_id == models.User.id)\
-             .filter(models.Comment.owner_id == user_id).all()
-    joined_comments = []
-    for comment, username in comments_with_username:
-        joined_comments.append( schemas.CommentWithUserName(
-            id=comment.id,
-            text=comment.text,
-            url=comment.url,
-            css_selector=comment.css_selector,
-            selected_text=comment.selected_text,
-            text_offset_start=comment.text_offset_start,
-            text_offset_end=comment.text_offset_end,
-            created_at=comment.created_at,
-            owner_id=comment.owner_id,
-            username=username
-        ))
-    return joined_comments
-
-
-def get_all_url_comments(db: Session, url: str):
-    comments_with_username = db.query(models.Comment, models.User.username)\
-             .join(models.User, models.Comment.owner_id == models.User.id)\
-             .filter(models.Comment.url == url).all()
+        .join(models.User, models.Comment.owner_id == models.User.id)\
+        .filter(models.Comment.owner_id == user_id).all()
+    
     return [
         schemas.CommentWithUserName(
             id=comment.id,
@@ -104,7 +111,31 @@ def get_all_url_comments(db: Session, url: str):
             text_offset_end=comment.text_offset_end,
             created_at=comment.created_at,
             owner_id=comment.owner_id,
-            username=username
+            username=username,
+            parent_id=comment.parent_id  
+        )
+        for comment, username in comments_with_username
+    ]
+
+
+def get_all_url_comments(db: Session, url: str):
+    comments_with_username = db.query(models.Comment, models.User.username)\
+        .join(models.User, models.Comment.owner_id == models.User.id)\
+        .filter(models.Comment.url == url).all()
+    
+    return [
+        schemas.CommentWithUserName(
+            id=comment.id,
+            text=comment.text,
+            url=comment.url,
+            css_selector=comment.css_selector,
+            selected_text=comment.selected_text,
+            text_offset_start=comment.text_offset_start,
+            text_offset_end=comment.text_offset_end,
+            created_at=comment.created_at,
+            owner_id=comment.owner_id,
+            username=username,
+            parent_id=comment.parent_id  
         )
         for comment, username in comments_with_username
     ]
@@ -124,7 +155,8 @@ def get_self_url_comments(db: Session, url: str, user_id: int):
             text_offset_end=comment.text_offset_end,
             created_at=comment.created_at,
             owner_id=comment.owner_id,
-            username=username
+            username=username,
+            parent_id=comment.parent_id
         )
         for comment, username in comments_with_username
     ]
@@ -147,7 +179,8 @@ def get_self_and_following_url_comments(db: Session, url: str, user_id: int):
             text_offset_end=comment.text_offset_end,
             created_at=comment.created_at,
             owner_id=comment.owner_id,
-            username=username
+            username=username,
+            parent_id=comment.parent_id
         )
         for comment, username in comments_with_username
     ]
@@ -231,6 +264,7 @@ def get_comments_from_following(db: Session, user_id: int):
             text_offset_end=comment.text_offset_end,
             created_at=comment.created_at,
             owner_id=comment.owner_id,
-            username=username
+            username=username,
+            parent_id=comment.parent_id
         ))
     return joined_comments

@@ -167,6 +167,20 @@ def delete_comment(
 ):
     return db_utils.delete_comment(db=db, comment_id=comment_id, user_id=current_user.id)
 
+@app.put("/edit_comment/{comment_id}")
+def edit_comment(
+    current_user: Annotated[schemas.User, Depends(get_current_active_user)],
+    comment_id: int,
+    comment_update: schemas.CommentUpdate,  
+    db: Session = Depends(get_db)
+):
+    return db_utils.edit_comment(
+        db=db, 
+        comment_id=comment_id, 
+        user_id=current_user.id, 
+        new_text=comment_update.text
+    )
+
 @app.get("/users/{user_id}/comments/", response_model=list[schemas.CommentWithUserName])
 def get_comments_for_user(
     user_id: int, db: Session = Depends(get_db)

@@ -171,6 +171,86 @@ function wrapTextInSpan(
       commentBubble.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
       commentBubble.style.zIndex = "10001";
 
+      const editButton = document.createElement("button");
+      editButton.textContent = "Edit";
+      editButton.style.position = "absolute"; 
+      editButton.style.top = "10px"; 
+      editButton.style.right = "15px"; 
+      editButton.style.padding = "4px 8px";
+      editButton.style.backgroundColor = toRgba(color, 0.1);
+      editButton.style.color = "#000";
+      editButton.style.border = "1px solid #000";
+      editButton.style.borderRadius = "4px";
+      editButton.style.cursor = "pointer";
+      editButton.style.display = "block";
+      editButton.style.fontSize = "12px";
+      editButton.style.zIndex = "10100"; 
+
+      editButton.addEventListener("click", () => {
+        const inputField = document.createElement("textarea");
+        inputField.value = comment; 
+        inputField.style.width = "100%";
+        inputField.style.marginBottom = "5px";
+      
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Save";
+        saveButton.style.padding = "5px 10px";
+        saveButton.style.marginRight = "5px";
+        saveButton.style.border = "1px solid #000";
+        saveButton.style.borderRadius = "4px";
+        saveButton.style.cursor = "pointer";
+      
+        const cancelButton = document.createElement("button");
+        cancelButton.textContent = "Cancel";
+        cancelButton.style.padding = "5px 10px";
+        cancelButton.style.border = "1px solid #000";
+        cancelButton.style.borderRadius = "4px";
+        cancelButton.style.cursor = "pointer";
+      
+        commentBubble.innerHTML = ""; // Clear current content
+        commentBubble.appendChild(usernameDisplay); 
+        commentBubble.appendChild(timestampDisplay); 
+        commentBubble.appendChild(inputField);
+        commentBubble.appendChild(saveButton);
+        commentBubble.appendChild(cancelButton);
+      
+        // Handle Save button click
+        saveButton.addEventListener("click", async () => {
+          const newText = inputField.value.trim();
+          if (newText) {
+            try {
+              await sendToBackground({
+                name: "edit_comment",
+                body: { comment_id: comment.id, text: newText },
+              });
+      
+              // Update UI with the new text
+              commentText.textContent = newText;
+              commentBubble.innerHTML = ""; // Clear editing UI
+              commentBubble.appendChild(usernameDisplay);
+              commentBubble.appendChild(timestampDisplay);
+              commentBubble.appendChild(commentText);
+              commentBubble.appendChild(editButton);
+            } catch (error) {
+              console.error("Failed to update comment:", error);
+              alert("Error updating comment. Please try again." + error);
+            }
+          } else {
+            alert("Comment text cannot be empty.");
+          }
+        });
+      
+        // Handle Cancel button click
+        cancelButton.addEventListener("click", () => {
+          // Restore original comment bubble content
+          commentBubble.innerHTML = "";
+          commentBubble.appendChild(usernameDisplay);
+          commentBubble.appendChild(timestampDisplay);
+          commentBubble.appendChild(commentText);
+          commentBubble.appendChild(editButton);
+        });
+      });      
+
       const usernameDisplay = document.createElement("p");
       usernameDisplay.textContent = `@${username}`;
       usernameDisplay.style.fontWeight = "bold";
@@ -195,6 +275,7 @@ function wrapTextInSpan(
       commentBubble.appendChild(usernameDisplay);
       commentBubble.appendChild(timestampDisplay);
       commentBubble.appendChild(commentText);
+      commentBubble.appendChild(editButton);
       sidebar.appendChild(commentBubble);
 
       const syncPosition = () => {
@@ -235,7 +316,7 @@ function wrapTextInSpan(
         commentBubble.style.backgroundColor = toRgba(color, 1); 
         commentBubble.style.border = `2px solid ${color}`; 
         commentBubble.style.boxShadow = "0 6px 12px rgba(0, 0, 0, 0.2)"; 
-      })
+      }); 
 
       commentBubble.addEventListener("mouseout", () => {
         highlightSpan.style.backgroundColor = toRgba(color, 0.3); 
@@ -251,6 +332,16 @@ function wrapTextInSpan(
           highlightSpan.style.backgroundColor = toRgba(color, 0.3); 
         }, 2000);
       });
+
+      editButton.addEventListener("mouseover", () => {
+        editButton.style.backgroundColor = "#fff"; 
+        
+      });
+
+      editButton.addEventListener("mouseout", () => {
+        editButton.style.backgroundColor = toRgba(color, 0.1); 
+      });
+
     }
-  });
+  })
 }
