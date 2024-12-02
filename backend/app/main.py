@@ -113,6 +113,11 @@ async def get_current_active_user(
     return current_user
 
 
+@app.get("/search_users/", response_model=list[schemas.User])
+def search_users(query: str, db: Session = Depends(get_db)):
+    users = db.query(models.User).filter(models.User.username.ilike(f"%{query}%")).all()
+    return users
+
 @app.post("/token")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[Session, Depends(get_db)],settings: Annotated[config.Settings, Depends(get_settings)]
