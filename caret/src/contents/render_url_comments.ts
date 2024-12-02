@@ -75,6 +75,7 @@ async function get_and_display_comments() {
 }
 
 function repositionCommentBubbles() {
+
   const sidebar = document.getElementById("comment-sidebar");
   if (!sidebar) return;
 
@@ -85,6 +86,7 @@ function repositionCommentBubbles() {
   let lastBubbleBottom = 0;
 
   commentBubbles.forEach((bubble) => {
+  
     const bubbleRect = bubble.getBoundingClientRect();
     const bubbleTop = bubbleRect.top + window.scrollY;
 
@@ -94,6 +96,7 @@ function repositionCommentBubbles() {
     }
 
     lastBubbleBottom = bubble.getBoundingClientRect().bottom + window.scrollY + 10; // 10px margin
+
   });
 }
 
@@ -236,7 +239,7 @@ function wrapTextInSpan(
         const rect = highlightSpan.getBoundingClientRect();
         const pageOffset = window.scrollY + rect.top;
         const relativeTop = pageOffset - window.scrollY;
-
+        
         commentBubble.style.top = `${relativeTop}px`;
       };
 
