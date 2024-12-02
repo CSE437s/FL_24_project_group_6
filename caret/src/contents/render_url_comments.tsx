@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { CommentBubble } from "../components/CommentBubble";
 import { useNavigate } from "react-router-dom";
 
-interface Comment {
+/*interface Comment {
   id: string;
   owner_id: string;
   username: string;
@@ -14,13 +14,13 @@ interface Comment {
   isFollowerComment?: boolean;
   highlight?: string;
   color?: string
-}
+}*/
 export const Sidebar = ({setSidebarVisible}) => {
 const navigate = useNavigate();
 console.log("sidebar");
-  const [sideComments, setSideComments] = useState<Comment[]>([]);
+  const [sideComments, setSideComments] = useState([]);
   const userColor = "#FFD700";
-  const followerColors: Record<string, string> = {};
+  const followerColors = {};
   const colorPalette = ["#ADD8E6", "#90EE90", "#FFB6C1", "#FFA07A", "#9370DB"];
 
   const assignFollowerColor = (owner_id: string) => {
@@ -42,13 +42,40 @@ console.log("sidebar");
       name: "get_url_comments",
       body: { url: location.href },
     });
+
     console.log("Response from background:", response);
     const mainUserId = "main_user";
 
-    const commentsWithFollowerFlag: Comment[] = response.sideComments.map((comment: any) => ({
+    const commentsWithFollowerFlag= response.sideComments.map((comment) => ({
       ...comment,
       isFollowerComment: comment.owner_id !== mainUserId,
     }));
+
+  console.log("Processed comments:", commentsWithFollowerFlag);
+
+  const new_comments = commentsWithFollowerFlag.filter(
+    (newComment) =>
+      !sideComments.find((existingComment) => existingComment.id === newComment.id)
+  );
+
+  for (let i = 0; i < new_comments.length; i++) {
+    const comment = new_comments[i];
+    const color =
+      comment.isFollowerComment
+        ? assignFollowerColor(comment.owner_id)
+        : userColor;
+
+    wrapTextInSpan(
+      comment.css_selector,
+      comment.text,
+      comment.text_offset_start,
+      comment.text_offset_end,
+      comment.text,
+      comment.username,
+      color
+    );
+  }
+
     setSideComments(commentsWithFollowerFlag);
 
   }
@@ -67,8 +94,12 @@ console.log("sidebar");
     };
     // Select the elements based on the CSS selector passed
     const elements = document.querySelectorAll(cssSelector);
+    if (!elements.length) {
+        console.error(`No elements found for selector: ${cssSelector}`);
+      }
     elements.forEach((element, index) => {
       const text = element.textContent;
+      console.log(text);
       if (text) {
         const beforeText = text.slice(0, textOffsetStart);
         const highlightedText = text.slice(textOffsetStart, textOffsetEnd);
@@ -101,7 +132,6 @@ console.log("sidebar");
               highlightSpan.style.backgroundColor = toRgba(color, 0.3); 
             }, 2000);
           });
-        // Add comment to sidebar
       }
     });
   }
