@@ -13,10 +13,12 @@ import { useNavigate } from "react-router-dom";
 import { NavBar } from "~components/NavBar";
 import {ProfileNav} from "../components/ProfileNav";
 import {MyComments} from "./myComments";
+import { Sidebar } from "~contents/render_url_comments";
 
 export const Routing = () => {
   const [username, setUsername] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isSidebarVisible, setSidebarVisible] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,9 +65,14 @@ export const Routing = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col overflow-y-auto">
-       {isLoggedIn && <ProfileNav user = {username}/>}
-      {isLoggedIn && <NavBar/> }
+    <div className="w-full flex flex-col overflow-y-auto">
+    {isLoggedIn && isSidebarVisible && <Sidebar setSidebarVisible={setSidebarVisible}/>}
+      {!isSidebarVisible && (
+        <>
+          {isLoggedIn && <ProfileNav user={username} />}
+          {isLoggedIn && <NavBar />}
+        </>
+      )}
       <Routes>
         <Route path="/home" element={<Home user={username} />} />
         <Route path="/" element={<Login setUser={setUsername} setIsLoggedIn={setIsLoggedIn} />} />
@@ -75,6 +82,7 @@ export const Routing = () => {
         <Route path="/request_email_reset" element={<EmailPasswordReset />} />
         <Route path="/reset_password" element={<ResetPassword />} />
         <Route path="/my_comments" element={<MyComments />} />
+        <Route path = "/sidebar" element = {<Sidebar setSidebarVisible = {setSidebarVisible}/>} />
       </Routes>
     </div>
   );

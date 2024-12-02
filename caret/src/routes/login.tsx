@@ -66,7 +66,7 @@ export const Login = ({ setUser, setIsLoggedIn }) => {
   };
   
   return (
-    <div className="flex min-h-full flex-col justify-center px-4">
+    <div className="flex h-[450px] flex-col justify-center px-4">
   <img className = "mx-auto object-contain size-16" src={logo} alt = "logo"></img>
     <h2 className="mt-4 text-center text-xl font-bold text-customGreenDark">Sign in to Your Account</h2>
       <form className="space-y-4 mt-4">

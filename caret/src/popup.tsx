@@ -4,7 +4,7 @@ import "~style.css";
 
 function IndexPopup() {
   return (
-    <div className="w-[320px] h-[450px] bg-white rounded-lg shadow-md">
+    <div className="w-[320px] bg-white rounded-lg shadow-md">
       <MemoryRouter>
         <Routing />
       </MemoryRouter>

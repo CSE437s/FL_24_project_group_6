@@ -58,7 +58,7 @@ export const Profile = ({ user, setIsLoggedIn}) => {
   }
 
   return (
-    <div className=" w-full flex flex-col justify-center p-5">
+    <div className=" w-full h-[450px] flex flex-col justify-center p-5">
       <div className="mb-2 border-b-2 border-gray-300">
       <div className="w-full flex items-start m-3">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FF7BAD]"> 

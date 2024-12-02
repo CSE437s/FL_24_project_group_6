@@ -31,7 +31,7 @@ export const EmailPasswordReset = () => {
   };
 
   return (
-    <div className="flex flex-col justify-between p-2">
+    <div className=" h-[450px] flex flex-col justify-between p-2">
       <div className="flex justify-start">
         <button
           className="text-customOrangeLight hover:underline"
