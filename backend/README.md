@@ -32,6 +32,9 @@ If you already have everything installed:
 
 ```uvicorn app.main:app --reload```
 
+for kubernetes, make sure to forward the port:
+kubectl port-forward service/caret 8000:8000
+
 
 
 
