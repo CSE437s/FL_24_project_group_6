@@ -4,7 +4,7 @@ from sqlalchemy import and_
 from enum import Enum
 from fastapi import HTTPException, status
 
-from . import models, schemas
+import models, schemas
 
 ## user utils
 

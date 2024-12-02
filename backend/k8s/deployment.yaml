@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: caret-db
+  labels:
+    app: caret-db
+spec:
+  selector:
+    matchLabels:
+      app: caret-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: caret-db
+    spec:
+      containers:
+        - image: docker.io/library/postgres:latest
+          name: caret-db
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: admin
+            - name: POSTGRES_PASSWORD
+              value: root
+            - name: POSTGRES_DB
+              value: test_db
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: caret-db
+spec:
+  selector:
+    app: caret-db
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: caret
+  labels:
+    app: caret
+spec:
+  selector:
+    matchLabels:
+      app: caret
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: caret
+    spec:
+      containers:
+        - image: backend:a1
+          imagePullPolicy: Never
+          name: caret
+          command:
+            - uvicorn
+            - main:app
+            - --host
+            - 0.0.0.0
+            - --port
+            - "8000"
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              value: postgresql://admin:root@caret-db/test_db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: caret
+spec:
+  type: LoadBalancer
+  selector:
+    app: caret
+  ports:
+    - port: 8000
+      targetPort: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: caret-ingress
+spec:
+  rules:
+    - host: localhost
+      http:
+          paths:
+            - pathType: Prefix
+              path: /
+              backend:
+                service:
+                  name: caret
+                  port:
+                    number: 8000

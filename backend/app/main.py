@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from sqlalchemy.orm import Session
-from . import config, models, schemas
+import config, models, schemas
 from functools import lru_cache
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -13,8 +13,8 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
 from sqlalchemy.orm import Session
 
-from . import db_utils
-from .database import SessionLocal, engine
+import db_utils
+from database import SessionLocal, engine
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
