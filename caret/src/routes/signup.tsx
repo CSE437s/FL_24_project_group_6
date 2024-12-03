@@ -69,7 +69,7 @@ export const Signup = () => {
     console.log(data); 
 
     try {
-      const response = await axios.post("http://localhost:8000/users/", data);
+      const response = await axios.post("http://34.72.50.33/users/", data);
       console.log("Response from server:", response);
       storage.set("access_token", response.data.token);
       navigate("/");
