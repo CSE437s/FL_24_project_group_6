@@ -153,37 +153,17 @@ export async function follow_by_username(username: string) {
 }
 
 
-export const get_logged_in_user = async (): Promise<{ username: string } | null> => {
-    const accessToken = localStorage.getItem("accessToken"); 
-  
-    if (!accessToken) {
-      console.error("No access token found. User is not authenticated.");
-      return null; 
-    }
-  
-    try {
-      const response = await fetch(me_url, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("API Error:", errorData);
-        throw new Error(
-          errorData.detail || `Failed to fetch username: ${response.statusText}`
-        );
-      }
-  
-      const data = await response.json(); 
-      return { username: data.username };
-    } catch (error) {
-      console.error("Error fetching username:", error);
-      return null; 
-    }
+export async function get_logged_in_user(){
+    const storage = new Storage({
+        copiedKeyList: ["shield-modulation"], 
+      })
+    const access_token = await storage.get("access_token")
+    const config = {
+        headers: { Authorization: `Bearer ${access_token}` }
+    };
+    let response = await axios.get(me_url, config)
+    return response.data;
+
   };
   
 
