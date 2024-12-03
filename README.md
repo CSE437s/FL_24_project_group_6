@@ -8,9 +8,7 @@
 
 ### BACKEND STEPS
 
-in terminal, go to project directory
-
-`docker-compose up -d`
+We're now using Kubernetes on Google Cloud, so no need to setup a backend :)
 
 ### FRONTEND STEPS
 
