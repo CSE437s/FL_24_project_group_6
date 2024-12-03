@@ -1,7 +1,7 @@
 import type { PlasmoGetInlineAnchor } from "plasmo";
 import { sendToBackground } from "@plasmohq/messaging"
 import React, { useState } from 'react';
-
+import "~style.css";
 // export const getInlineAnchor: PlasmoGetInlineAnchor = async () => {
 //     return document.querySelector('body')
 // }
@@ -19,17 +19,18 @@ const colorPalette = [
 
 const showSidebarButton = document.createElement("button");
 showSidebarButton.textContent = "Show Comments";
-showSidebarButton.style.position = "fixed";
+showSidebarButton.className = "fixed block bottom-4 right-4 bg-customOrangeDark text-white text-lg p-2 rounded-md hover:bg-customOrangeLight";
+/*showSidebarButton.style.position = "fixed";
 showSidebarButton.style.bottom = "10px";
 showSidebarButton.style.right = "10px";
 showSidebarButton.style.backgroundColor = "#ffa500";
 showSidebarButton.style.color = "#000";
 showSidebarButton.style.border = "none";
 showSidebarButton.style.borderRadius = "4px";
-showSidebarButton.style.padding = "10px";
+showSidebarButton.style.padding = "10px";*/
 showSidebarButton.style.cursor = "pointer";
 showSidebarButton.style.zIndex = "10000";
-showSidebarButton.style.display = "block";
+//showSidebarButton.style.display = "block";
 
 const assignUserColor = (owner_id) => {
   if (!owner_id) {
@@ -192,46 +193,49 @@ window.addEventListener("load", async () => {
     if (!sidebar) {
       sidebar = document.createElement("div");
       sidebar.id = "comment-sidebar";
-      sidebar.style.position = "fixed";
+      sidebar.className = 'fixed top-0 right-0 w-[300px] h-full overflow-y-auto scroll-smooth bg-white p-2 border-gray-400';
+      /*sidebar.style.position = "fixed";
       sidebar.style.top = "0";
       sidebar.style.right = "0";
       sidebar.style.width = "300px";
       sidebar.style.height = "100%";
       sidebar.style.overflowY = "auto";
       sidebar.style.scrollBehavior = "smooth";
-      sidebar.style.backgroundColor = "white";
+      sidebar.style.backgroundColor = "white"; */
       sidebar.style.borderLeft = "1px solid #ddd";
       sidebar.style.zIndex = "10000";
-      sidebar.style.padding = "10px";
+      //sidebar.style.padding = "10px"; 
       sidebar.style.display = "none"
       document.body.appendChild(sidebar);
   
       sidebarTitle = document.createElement("div");
       sidebarTitle.textContent = "Caret Comments";
-      sidebarTitle.style.fontSize = "18px";
+      sidebarTitle.className = 'sticky top-0 mb-10 w-full text-center text-xl py-2 font-bold text-customGreenDark';
+     /* sidebarTitle.style.fontSize = "18px";
       sidebarTitle.style.fontWeight = "bold";
       sidebarTitle.style.marginBottom = "10px";
-      sidebarTitle.style.borderBottom = "2px solid #ddd";
       sidebarTitle.style.padding = "10px";
       sidebarTitle.style.paddingBottom = "10px";
       sidebarTitle.style.textAlign = "center";
       sidebarTitle.style.backgroundColor = "#ffa500";
       sidebarTitle.style.position = "sticky";
-      sidebarTitle.style.top = "0";
+      sidebarTitle.style.top = "0";*/
+      sidebarTitle.style.borderBottom = "2px solid #ddd";
       sidebarTitle.style.zIndex = "10100";
       
 
       const closeButton = document.createElement("button");
+      closeButton.className = "text-sm w-[20px] text-white h-[20px] sticky top-0 right-5 bg-customOrangeDark";
       closeButton.textContent = "X";
-      closeButton.style.position = "sticky"; 
-      closeButton.style.top = "0px";
+     /* closeButton.style.position = "sticky"; 
+      closeButton.style.top = "0";
       closeButton.style.right = "5px";
       closeButton.style.backgroundColor = "#ff0000";
-      closeButton.style.color = "#fff";
+      closeButton.style.color = "#fff"; */
       closeButton.style.border = "none";
       closeButton.style.borderRadius = "50%";
-      closeButton.style.width = "24px";
-      closeButton.style.height = "24px";
+      //closeButton.style.width = "20px";
+      //closeButton.style.height = "20px";
       closeButton.style.cursor = "pointer";
       closeButton.style.zIndex = "10101";
 
@@ -264,24 +268,27 @@ window.addEventListener("load", async () => {
 
   function createCommentBubble(commentObj, color, selectedSpanText){
     const commentBubble = document.createElement("div");
-    commentBubble.style.position = "absolute";
+    commentBubble.className = "absolute flex flex-col overflow-visible w-[280px] mb-2 pt-2 px-6 pb-4 rounded-lg drop-shadow z-30"
+   /* commentBubble.style.position = "absolute";
     commentBubble.style.width = "280px";
-    commentBubble.style.marginBottom = "10px";
+    commentBubble.style.marginBottom = "10px";*/
     commentBubble.style.border = `1px solid ${color}`;
-    commentBubble.style.borderRadius = "8px";
+    //commentBubble.style.borderRadius = "8px";
     commentBubble.style.backgroundColor = toRgba(color, 0.1); 
-    commentBubble.style.padding = "10px";
-    commentBubble.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
+    //commentBubble.style.padding = "10px";
+   // commentBubble.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
     commentBubble.style.zIndex = "10001";
     commentBubble.style.overflow = "visible"; 
-    commentBubble.style.display = "flex"; 
-    commentBubble.style.flexDirection = "column"; 
-    
+    //commentBubble.style.display = "flex"; 
+    //commentBubble.style.flexDirection = "column"; 
+    const userAndTime = document.createElement("div");
+    userAndTime.className = 'flex justify-between items-center mb-2';
     const usernameDisplay = document.createElement("p");
     usernameDisplay.textContent = `@${commentObj.username}`;
-    usernameDisplay.style.fontWeight = "bold";
-    usernameDisplay.style.marginBottom = "5px";
-
+    usernameDisplay.className = 'font-medium text-emerald-600 mb-1';
+    //usernameDisplay.style.fontWeight = "bold";
+    //usernameDisplay.style.marginBottom = "5px";
+    userAndTime.appendChild(usernameDisplay);
     const commentText = document.createElement("p");
     commentText.textContent = commentObj.text;
 
@@ -298,13 +305,13 @@ window.addEventListener("load", async () => {
 
     const timestampDisplay = document.createElement("p");
     timestampDisplay.textContent = timestamp;
-    timestampDisplay.style.color = "#555";
+    timestampDisplay.className = 'text-xs text-gray-500 mt-1 mb-1';
+    /*timestampDisplay.style.color = "#555";
     timestampDisplay.style.fontSize = "12px";
     timestampDisplay.style.marginTop = "5px";
-    timestampDisplay.style.marginBottom = "5px";
-
-    commentBubble.appendChild(usernameDisplay);
-    commentBubble.appendChild(timestampDisplay);
+    timestampDisplay.style.marginBottom = "5px";*/
+    userAndTime.appendChild(timestampDisplay);
+    commentBubble.appendChild(userAndTime);
     commentBubble.appendChild(commentText);
     // commentBubble.appendChild(highlightText);
 

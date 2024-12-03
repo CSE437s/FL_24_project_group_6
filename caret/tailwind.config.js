@@ -2,7 +2,7 @@
 module.exports = {
   mode: "jit",
   content: [
-    "./src/**/*.{tsx,html}",  // Scanning all relevant files in src
+    "./src/**/*.{tsx,ts,html}",  // Scanning all relevant files in src
     "./.plasmo/**/*.{tsx,html}",  // Scan any Plasmo-related files
   ],
   darkMode: "media",
