@@ -202,6 +202,21 @@ def get_self_url_comments(
 ):
     return db_utils.get_self_url_comments(db=db, url=url, user_id=current_user.id)
 
+@app.post("/replies/", response_model=schemas.Reply)
+def create_reply(
+    reply: schemas.ReplyCreate, 
+    db: Session = Depends(get_db), 
+    current_user: int = Depends(get_current_user)
+):
+    return db_utils.create_reply(db=db, reply=reply, user_id=current_user.id)
+
+@app.get("/comments/{comment_id}/replies", response_model=list[schemas.Reply])
+def get_replies_by_comment(
+    comment_id: int, 
+    db: Session = Depends(get_db)
+):
+    return db_utils.get_replies_by_comment(db=db, comment_id=comment_id)
+
 @app.post("/password_reset_request/")
 def password_reset_request(
     data: schemas.PasswordResetRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db), settings: config.Settings = Depends(get_settings), 

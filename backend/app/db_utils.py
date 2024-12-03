@@ -3,6 +3,7 @@ from passlib.context import CryptContext
 from sqlalchemy import and_
 from enum import Enum
 from fastapi import HTTPException, status
+from sqlalchemy.sql import func
 
 from . import models, schemas
 
@@ -165,7 +166,20 @@ def get_self_and_following_url_comments(db: Session, url: str, user_id: int):
         for comment, username in comments_with_username
     ]
 
+def create_reply(db: Session, reply: schemas.ReplyCreate, user_id: int):
+    db_reply = models.Reply(
+        text=reply.text,
+        owner_id=user_id,
+        comment_id=reply.comment_id,
+        created_at=func.now()
+    )
+    db.add(db_reply)
+    db.commit()
+    db.refresh(db_reply)
+    return db_reply
 
+def get_replies_by_comment(db: Session, comment_id: int):
+    return db.query(models.Reply).filter(models.Reply.comment_id == comment_id).all()
 
 def update_password(db: Session, user: models.User, new_password: str):
     hashed_password = get_password_hash(new_password)
