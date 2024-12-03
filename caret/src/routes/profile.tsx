@@ -10,6 +10,7 @@ export const Profile = ({ user, setIsLoggedIn}) => {
     copiedKeyList: ["shield-modulation"],
   });
   const colors = ["#C8DB2A", "#FF7BAD", "6FE4CC", "#185D79", "#EF4686"]; //assign user color from here and put in circle
+  const color = colors[user.length % colors.length] 
   let strValue: string = user as string;
   const letter = strValue.charAt(0);//first letter
   const [username, setUsername] = useState("");
@@ -37,7 +38,7 @@ export const Profile = ({ user, setIsLoggedIn}) => {
     }, []);
   
     if (loading) {
-      return <div className="text-center">Loading...</div>;
+      return <div></div>
     }
   
     if (error) {
@@ -77,7 +78,7 @@ export const Profile = ({ user, setIsLoggedIn}) => {
     <div className=" w-full flex flex-col justify-center p-5">
       <div className="mb-2 border-b-2 border-gray-300">
       <div className="w-full flex items-start m-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FF7BAD]"> 
+        <div className="flex h-12 w-12 items-center justify-center rounded-full" style={{ backgroundColor: color }}> 
     <p className="text-xl">{letter}</p>
   </div>
   <div className = "flex flex-col ml-2 ">

@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 
-export const NavBar= () =>{
+export const NavBar= (props) =>{
+  console.log(props)
 return(
     <nav className=" flex justify-between items-center sticky top-8 z-50 bg-white">
       <ul className="w-full grid grid-flow-col text-center border-b border-gray-200 text-gray-500 z-50 ">
@@ -34,7 +35,8 @@ return(
         </li>
         <li>
           <NavLink 
-            to="/my_comments" 
+            to="/explore"
+            state={{ user: props.current_user }}
             className={({ isActive }) => 
             `flex justify-center border-b-2 py-2 ${
               isActive 
@@ -43,7 +45,7 @@ return(
             }`
           }
           >
-            My Comments
+            Explore
           </NavLink>
         </li>
       </ul>

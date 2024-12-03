@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
 
 
-export const ProfileNav = ({ user }) => {
+export const ProfileNav = (props) => {
     const navigate = useNavigate();
     const handleClick = () => {
-        navigate("/profile");
+        navigate("/other_profile", {
+          state: { "user": props.current_user }
+        });
     };
 // <div className="absolute top-0 right-0 flex justify-end p-2">
 console.log("rendered!");
@@ -12,7 +14,7 @@ console.log("rendered!");
     return (
         <div className="flex bg-white justify-between p-3 sticky top-0 z-50">
          <div>
-          <p className = "text-customGreenDark font-bold">@{user}</p>
+          <p className = "text-customGreenDark font-bold">@{props.current_user}</p>
          </div>
        <div>
         <button

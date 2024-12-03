@@ -68,6 +68,19 @@ def delete_comment(db: Session, comment_id: int, user_id: int):
     
     return {"message": "Comment deleted successfully"}
 
+def edit_comments(db: Session, comment_id: int, user_id: int, new_text: str):
+    comment = db.query(models.Comment).filter(models.Comment.id == comment_id).first()
+    if comment is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found")
+    if comment.owner_id != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to edit this comment")
+    
+    comment.text = new_text
+    db.commit()
+    db.refresh(comment)  
+
+    return {"message": "Comment edited successfully"}
+
 def get_user_comments(db: Session, user_id: int):
     comments_with_username = db.query(models.Comment, models.User.username)\
              .join(models.User, models.Comment.owner_id == models.User.id)\
@@ -219,7 +232,9 @@ def get_comments_from_following(db: Session, user_id: int):
 
     comments_with_username = db.query(models.Comment, models.User.username)\
         .join(models.User, models.Comment.owner_id == models.User.id)\
-        .filter(models.Comment.owner_id.in_(following_ids)).all()
+        .filter(models.Comment.owner_id.in_(following_ids))\
+        .order_by(models.Comment.created_at.desc())\
+        .all()
 
     joined_comments = []
     for comment, username in comments_with_username:

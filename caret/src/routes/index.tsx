@@ -13,6 +13,8 @@ import { useNavigate } from "react-router-dom";
 import { NavBar } from "~components/NavBar";
 import {ProfileNav} from "../components/ProfileNav";
 import {MyComments} from "./myComments";
+import { OtherProfile } from "./other_profile";
+import { Explore } from "./explore";
 
 export const Routing = () => {
   const [username, setUsername] = useState("");
@@ -64,8 +66,8 @@ export const Routing = () => {
 
   return (
     <div className="w-full h-full flex flex-col overflow-y-auto">
-       {isLoggedIn && <ProfileNav user = {username}/>}
-      {isLoggedIn && <NavBar/> }
+       {isLoggedIn && <ProfileNav current_user = {username}/>}
+      {isLoggedIn && <NavBar current_user={username}/> }
       <Routes>
         <Route path="/home" element={<Home user={username} />} />
         <Route path="/" element={<Login setUser={setUsername} setIsLoggedIn={setIsLoggedIn} />} />
@@ -75,6 +77,8 @@ export const Routing = () => {
         <Route path="/request_email_reset" element={<EmailPasswordReset />} />
         <Route path="/reset_password" element={<ResetPassword />} />
         <Route path="/my_comments" element={<MyComments />} />
+        <Route path="/other_profile" element={<OtherProfile current_user={username} setIsLoggedIn={setIsLoggedIn}/>} />
+        <Route path="/explore" element={<Explore current_user={username}/>} />
       </Routes>
     </div>
   );

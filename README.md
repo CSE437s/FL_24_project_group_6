@@ -8,39 +8,9 @@
 
 ### BACKEND STEPS
 
-in terminal `cd backend`
-
-Initial Setup for backend:
-
-1. make sure you're using python 3.10+
-2. create a venv in /backend:
-
-   `python3 -m venv .venv`
-
-3. activate the venv in /backend
-
-   `source .venv/bin/activate`
-
-4. install the dependencies in /backend
-
-   `pip3 install -r requirements.txt`
-
-5. start the postgres container in /backend
-
-   `docker-compose up -d`
-
-6. start the app. you can go to http://localhost:8000/docs to see the docs.
-
-   ```
-   uvicorn app.main:app --reload
-   ```
-
-If you already have everything installed:
-`source .venv/bin/activate`
+in terminal, go to project directory
 
 `docker-compose up -d`
-
-`uvicorn app.main:app --reload`
 
 ### FRONTEND STEPS
 
