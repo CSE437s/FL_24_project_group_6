@@ -186,7 +186,7 @@ function wrapTextInSpan(
       usernameDisplay.style.marginBottom = "5px";
 
       const commentText = document.createElement("p");
-      commentText.textContent = comment + loggedInUsername;
+      commentText.textContent = comment;
 
       const timestamp = new Date().toLocaleTimeString("en-US", {
         hour: "2-digit",
