@@ -12,13 +12,13 @@ We're now using Kubernetes on Google Cloud, so no need to setup a backend :)
 
 ### FRONTEND STEPS
 
-open another terminal and `cd caret`
+open another terminal and navigate to the frontend directory: 
+`cd caret`
 
-Initial setup for frontend:
+Initial setup for frontend: 
 `npm i`
 
-if everything is installed:
-
+If everything is installed:
 `npm run dev`
 
 ### USE EXTENSION
