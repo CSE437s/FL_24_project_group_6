@@ -173,6 +173,13 @@ def get_comments_for_user(
 ):
     return db_utils.get_user_comments(db=db, user_id=user_id)
 
+@app.get("/users/by_username/{username}/comments/", response_model=list[schemas.CommentWithUserName])
+def get_comments_for_user(
+    username: str, db: Session = Depends(get_db)
+):
+    user_id = get_user_id_from_username(username=username, db=db)
+    return db_utils.get_user_comments(db=db, user_id=user_id)
+
 @app.get("/comments/", response_model=list[schemas.CommentWithUserName])
 def get_all_url_comments(
     url: str, db: Session = Depends(get_db)
@@ -256,6 +263,42 @@ async def get_followers(
     """Get all followers of the current user."""
     return db_utils.get_followers(db, user_id=current_user.id)
 
+@app.get("/users/{user_id}/followers", response_model=list[schemas.User])
+async def get_user_followers(
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+    """Get all followers of a specific user by their user_id."""
+    return db_utils.get_followers(db, user_id=user_id)
+
+@app.get("/users/{user_id}/username", response_model=str)
+async def get_username_from_user_id(
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Get the username of a user by their user_id.
+    """
+    user = db_utils.get_user(db, user_id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user.username
+
+@app.get("/users/{username}/id", response_model=int)
+async def get_user_id_from_username(
+    username: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Get the user_id of a user by their username.
+    """
+    user = db_utils.get_user_by_username(db, username=username)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user.id
+
+
+
 @app.post("/users/me/follow/{followee_id}", response_model=dict)
 async def follow_user(
     current_user: Annotated[schemas.User, Depends(get_current_active_user)],
@@ -292,8 +335,10 @@ async def get_following(
     current_user: Annotated[schemas.User, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
 ):
-    """Get all followers of the current user."""
+    """Get all following of the current user."""
     return db_utils.get_following(db=db, user_id=current_user.id)
+
+
 
 @app.get("/users/me/following/comments", response_model=list[schemas.CommentWithUserName])
 async def get_following_comments(

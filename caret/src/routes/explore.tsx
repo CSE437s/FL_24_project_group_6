@@ -4,14 +4,14 @@ import { Storage } from "@plasmohq/storage";
 import { follow_by_username } from "~api";
 import { get_followers } from "~api";
 
-export const Profile = ({ user, setIsLoggedIn}) => {
+export const Explore = ({ current_user }) => {
   const navigate = useNavigate();
   const storage = new Storage({
     copiedKeyList: ["shield-modulation"],
   });
   const colors = ["#C8DB2A", "#FF7BAD", "6FE4CC", "#185D79", "#EF4686"]; //assign user color from here and put in circle
-  const color = colors[user.length % colors.length] 
-  let strValue: string = user as string;
+  const color = colors[current_user.length % colors.length] 
+  let strValue: string = current_user as string;
   const letter = strValue.charAt(0);//first letter
   const [username, setUsername] = useState("");
   const [usernameError, setUsernameError] = useState("");
@@ -49,7 +49,6 @@ export const Profile = ({ user, setIsLoggedIn}) => {
 
   const handleLogout = async () => {
     localStorage.removeItem("token");
-    setIsLoggedIn(false);
     await storage.set("access_token", "");
     navigate("/");
   };
@@ -66,7 +65,7 @@ export const Profile = ({ user, setIsLoggedIn}) => {
     <p className="text-xl">{letter}</p>
   </div>
   <div className = "flex flex-col ml-2 ">
-  <p className="text-2xl font-bold">{user}</p>
+  <p className="text-2xl font-bold">{username}</p>
   <p className = "text-sm  text-gray-400">{followers.length} followers</p>
   </div>
   </div>
