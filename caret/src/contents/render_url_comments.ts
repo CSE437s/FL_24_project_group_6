@@ -133,6 +133,10 @@ window.addEventListener("load", async () => {
   
         span.addEventListener("click", () => {
           span.scrollIntoView({ behavior: "smooth", block: "center" });
+          const sidebar = createSideBar(); 
+          sidebar.style.display = "block"; 
+          document.body.style.marginRight = "300px";
+          showSidebarButton.style.display = "none"; 
           commentBubble.scrollIntoView({ behavior: "smooth", block: "center" });
           span.style.backgroundColor = toRgba(color, 1); 
           setTimeout(() => {
