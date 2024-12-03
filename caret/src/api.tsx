@@ -2,19 +2,19 @@ import axios from "axios";
 import { Storage } from "@plasmohq/storage"
 
 
-const token_url = "http://localhost:8000/token"
-const me_url = "http://localhost:8000/users/me"
-const followers_url = "http://localhost:8000/users/me/followers"
-const create_comment_url = "http://localhost:8000/create_comment"
-const get_comments_url = "http://localhost:8000/comments"
-const password_reset_request_url = "http://localhost:8000/password_reset_request/"
-const reset_password_url = "http://localhost:8000/reset-password/"
-const get_my_comments_url = "http://localhost:8000/users/me/comments"
-const delete_comments_url = "http://localhost:8000/delete_comment"
-const edit_comments_url = "http://localhost:8000/edit_comments"
-const follow_user_by_username = "http://localhost:8000/users/me/follow_by_username"
-const get_following_comments_url = "http://localhost:8000/users/me/following/comments"
-const search_users_url = "http://localhost:8000/search_users"
+const token_url = "http://34.72.50.33/token"
+const me_url = "http://34.72.50.33/users/me"
+const followers_url = "http://34.72.50.33/users/me/followers"
+const create_comment_url = "http://34.72.50.33/create_comment"
+const get_comments_url = "http://34.72.50.33/comments"
+const password_reset_request_url = "http://34.72.50.33/password_reset_request/"
+const reset_password_url = "http://34.72.50.33/reset-password/"
+const get_my_comments_url = "http://34.72.50.33/users/me/comments"
+const delete_comments_url = "http://34.72.50.33/delete_comment"
+const edit_comments_url = "http://34.72.50.33/edit_comments"
+const follow_user_by_username = "http://34.72.50.33/users/me/follow_by_username"
+const get_following_comments_url = "http://34.72.50.33/users/me/following/comments"
+const search_users_url = "http://34.72.50.33/search_users"
 
 
 export function fetch_token(username: string, password: string) {
@@ -53,7 +53,7 @@ export async function get_followers_by_username(username: string) {
     return get_followers_by_user_id(user_id)
 }
 export async function get_followers_by_user_id(user_id: string) {
-    const url = `http://localhost:8000/users/${user_id}/followers`
+    const url = `http://34.72.50.33/users/${user_id}/followers`
     return axios.get(url)
 }
 
@@ -70,16 +70,16 @@ export async function get_my_comments() {
     return axios.get(get_my_comments_url, config)
 }
 export async function get_comments_by_user_id(user_id: string) {
-    const url = "http://localhost:8000/users/" + user_id + "/comments"
+    const url = "http://34.72.50.33/users/" + user_id + "/comments"
     return axios.get(url)
 }
 export async function get_username_from_user_id(user_id) {
-    const url = `http://localhost:8000/users/${user_id}/username`
+    const url = `http://34.72.50.33/users/${user_id}/username`
         const response = await axios.get(url);
         return response.data; // This will be the username
 }
 export async function get_user_id_from_username(username) {
-    const url = `http://localhost:8000/users/${username}/id`
+    const url = `http://34.72.50.33/users/${username}/id`
         const response = await axios.get(url);
         return response.data; // This will be the user_id
 }
@@ -93,7 +93,7 @@ export async function unfollow_user_by_username(username) {
         headers: { Authorization: `Bearer ${access_token}` }
     };
     const user_id = await get_user_id_from_username(username)
-    const url = `http://localhost:8000/users/me/unfollow/${user_id}`
+    const url = `http://34.72.50.33/users/me/unfollow/${user_id}`
     return axios.delete(url, config)
 }
 
