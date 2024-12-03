@@ -6,7 +6,7 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
   console.log(req);
   console.log(res);
 
-  const replies = await get_replies(req.body.commentId);
+  const replies = await get_replies(req.body.comment_id);
   console.log("response");
   console.log(replies);
 
