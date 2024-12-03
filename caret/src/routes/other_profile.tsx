@@ -84,6 +84,10 @@ export const OtherProfile = (props) => {
     if (error) {
       return <div className="text-red-500 text-center">{error}</div>;
     }
+    const handleBack = () => {
+      // Passing props through state to the target route
+      navigate(-1);
+    };
     console.log("current:")
     console.log(props.current_user)
     console.log(user)
@@ -93,6 +97,12 @@ export const OtherProfile = (props) => {
   if (!showFollowers) {
     return (
         <div className=" w-full flex flex-col justify-center p-5">
+          {props.current_user != user && 
+          <button className="rounded inline-flex items-center bg-transparent text-customGreenDark" onClick={handleBack}>
+            <svg className = "fill-current w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+<path d="M 24 4 C 12.972066 4 4 12.972074 4 24 C 4 35.027926 12.972066 44 24 44 C 35.027934 44 44 35.027926 44 24 C 44 12.972074 35.027934 4 24 4 z M 24 7 C 33.406615 7 41 14.593391 41 24 C 41 33.406609 33.406615 41 24 41 C 14.593385 41 7 33.406609 7 24 C 7 14.593391 14.593385 7 24 7 z M 22.470703 16.486328 A 1.50015 1.50015 0 0 0 21.439453 16.939453 L 15.439453 22.939453 A 1.50015 1.50015 0 0 0 15.439453 25.060547 L 21.439453 31.060547 A 1.50015 1.50015 0 1 0 23.560547 28.939453 L 20.121094 25.5 L 31.5 25.5 A 1.50015 1.50015 0 1 0 31.5 22.5 L 20.121094 22.5 L 23.560547 19.060547 A 1.50015 1.50015 0 0 0 22.470703 16.486328 z"></path>
+</svg>
+            </button>}
         <div className="mb-2 border-b-2 border-gray-300">
         <div className="w-full flex items-start m-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-full" style={{ backgroundColor: color }}> 
