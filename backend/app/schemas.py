@@ -23,6 +23,9 @@ class Comment(BaseModel):
 class CommentCreate(Comment):
     pass
 
+class CommentEdit(BaseModel):
+    text: str
+
 class CommentInDB(Comment):
     id: int
     owner_id: int

@@ -1,6 +1,7 @@
 import { sendToBackground } from "@plasmohq/messaging";
 
 let comments = [];
+let loggedInUsername;
 const userColor = "#FFD700";
 const followerColors = {};
 const colorPalette = [
@@ -14,7 +15,7 @@ const colorPalette = [
 const assignFollowerColor = (owner_id) => {
   if (!owner_id) {
     console.warn("Owner ID is missing. Assigning temporary unique ID.");
-    owner_id = `temp-${Date.now()}-${Math.random()}`; // Temporary unique ID
+    owner_id = `temp-${Date.now()}-${Math.random()}`;
   }
 
   if (!followerColors[owner_id]) {
@@ -29,12 +30,18 @@ const assignFollowerColor = (owner_id) => {
 };
 
 async function get_and_display_comments() {
+
   let response = await sendToBackground({
     name: "get_url_comments",
     body: {
       url: location.href,
     },
-  });
+  })
+
+  let reponse2 = await sendToBackground({
+    name: "get_logged_in_user"
+  })
+  loggedInUsername = reponse2.username
 
   const mainUserId = "main_user"; 
 
@@ -66,6 +73,7 @@ async function get_and_display_comments() {
       comment.text_offset_end,
       comment.text,
       comment.username,
+      comment.id,
       color
     );
   }
@@ -89,6 +97,7 @@ function wrapTextInSpan(
   textOffsetEnd,
   comment,
   username,
+  id,
   color
 ) {
   const toRgba = (color, alpha) => {
@@ -192,9 +201,89 @@ function wrapTextInSpan(
       timestampDisplay.style.marginTop = "5px";
       timestampDisplay.style.marginBottom = "5px";
 
+      const editButton = document.createElement("button");
+      editButton.textContent = "Edit";
+      editButton.style.position = "absolute"; 
+      editButton.style.top = "10px"; 
+      editButton.style.right = "15px"; 
+      editButton.style.padding = "4px 8px";
+      editButton.style.backgroundColor = toRgba(color, 0.1);
+      editButton.style.color = "#000";
+      editButton.style.border = "1px solid #000";
+      editButton.style.borderRadius = "4px";
+      editButton.style.cursor = "pointer";
+      editButton.style.display = "block";
+      editButton.style.fontSize = "12px";
+
+      editButton.addEventListener("click", () => {
+        const inputField = document.createElement("textarea");
+        inputField.value = comment; 
+        inputField.style.width = "100%";
+        inputField.style.marginBottom = "5px";
+      
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Save";
+        saveButton.style.padding = "5px 10px";
+        saveButton.style.marginRight = "5px";
+        saveButton.style.border = "1px solid #000";
+        saveButton.style.borderRadius = "4px";
+        saveButton.style.cursor = "pointer";
+      
+        const cancelButton = document.createElement("button");
+        cancelButton.textContent = "Cancel";
+        cancelButton.style.padding = "5px 10px";
+        cancelButton.style.border = "1px solid #000";
+        cancelButton.style.borderRadius = "4px";
+        cancelButton.style.cursor = "pointer";
+      
+        commentBubble.innerHTML = ""; 
+        commentBubble.appendChild(usernameDisplay); 
+        commentBubble.appendChild(timestampDisplay); 
+        commentBubble.appendChild(inputField);
+        commentBubble.appendChild(saveButton);
+        commentBubble.appendChild(cancelButton);
+
+        cancelButton.addEventListener("click", () => {
+          commentBubble.innerHTML = "";
+          commentBubble.appendChild(usernameDisplay);
+          commentBubble.appendChild(timestampDisplay);
+          commentBubble.appendChild(commentText);
+          commentBubble.appendChild(editButton);
+        });
+
+        saveButton.addEventListener("click", async () => {
+          const newText = inputField.value.trim();
+          if(newText){ 
+            try{
+              await sendToBackground({
+                name: "edit_comments", 
+                body: {comment_id: id, text: newText}
+              })
+              commentText.textContent = newText;
+              commentBubble.innerHTML = ""; 
+              commentBubble.appendChild(usernameDisplay);
+              commentBubble.appendChild(timestampDisplay);
+              commentBubble.appendChild(commentText);
+              commentBubble.appendChild(editButton);
+            }
+            catch(error){
+              console.error("Failed to update comment:", error);
+              alert("Error updating comment. Please try again." + error);
+            }
+          } 
+          else{
+            alert("Comment text cannot be empty."); 
+          }
+        }); 
+      });
+
       commentBubble.appendChild(usernameDisplay);
       commentBubble.appendChild(timestampDisplay);
       commentBubble.appendChild(commentText);
+      if (username == loggedInUsername) {
+        commentBubble.appendChild(editButton); 
+      }
+      
       sidebar.appendChild(commentBubble);
 
       const syncPosition = () => {
