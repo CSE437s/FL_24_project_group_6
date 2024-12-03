@@ -1,4 +1,5 @@
 import { sendToBackground } from "@plasmohq/messaging";
+import "~style.css";
 
 let comments = [];
 let loggedInUsername;
@@ -113,13 +114,14 @@ function wrapTextInSpan(
     return color;
   };
 
-  document.body.style.marginRight = "300px";
+  document.body.style.marginRight = "320px";
 
   let sidebar = document.getElementById("comment-sidebar");
   if (!sidebar) {
     sidebar = document.createElement("div");
     sidebar.id = "comment-sidebar";
-    sidebar.style.position = "fixed";
+    sidebar.className = 'fixed top-0 right-0 w-[320px] h-full overflow-y-hidden scroll-smooth bg-white z-40 p-2 border-l border-gray-400';
+    /*sidebar.style.position = "fixed";
     sidebar.style.top = "0";
     sidebar.style.right = "0";
     sidebar.style.width = "300px";
@@ -129,21 +131,22 @@ function wrapTextInSpan(
     sidebar.style.backgroundColor = "white";
     sidebar.style.borderLeft = "1px solid #ddd";
     sidebar.style.zIndex = "10000";
-    sidebar.style.padding = "10px";
+    sidebar.style.padding = "10px";*/
     document.body.appendChild(sidebar);
 
     const sidebarTitle = document.createElement("div");
     sidebarTitle.textContent = "Caret Comments";
-    sidebarTitle.style.fontSize = "18px";
-    sidebarTitle.style.fontWeight = "bold";
-    sidebarTitle.style.marginBottom = "10px";
-    sidebarTitle.style.borderBottom = "2px solid #ddd";
-    sidebarTitle.style.paddingBottom = "10px";
-    sidebarTitle.style.textAlign = "center";
-    sidebarTitle.style.backgroundColor = "#f8f9fa";
-    sidebarTitle.style.position = "sticky";
-    sidebarTitle.style.top = "0";
-    sidebarTitle.style.zIndex = "10001";
+    sidebarTitle.className = 'sticky top-0 mb-10 w-full text-center text-xl py-10 bg-red font-bold text-customGreenDark z-100 border-b border-gray-400';
+    //sidebarTitle.style.fontSize = "18px";
+    //sidebarTitle.style.fontWeight = "bold";
+    //sidebarTitle.style.marginBottom = "10px";
+    //sidebarTitle.style.borderBottom = "2px solid #ddd";
+    //sidebarTitle.style.paddingBottom = "10px";
+    //sidebarTitle.style.textAlign = "center";
+    //sidebarTitle.style.backgroundColor = "#f8f9fa";
+    //sidebarTitle.style.position = "sticky";
+    //sidebarTitle.style.top = "0";
+    //sidebarTitle.style.zIndex = "10001";
     sidebar.appendChild(sidebarTitle);
   }
 
@@ -170,21 +173,25 @@ function wrapTextInSpan(
       element.appendChild(newContent);
 
       const commentBubble = document.createElement("div");
-      commentBubble.style.position = "absolute";
-      commentBubble.style.width = "280px";
-      commentBubble.style.marginBottom = "10px";
+      commentBubble.className = "absolute w-[280px] mt-2 pt-2 px-6 pb-4 rounded-lg drop-shadow z-30"
+      //commentBubble.style.position = "absolute";
+      //commentBubble.style.width = "280px";
+      //commentBubble.style.marginBottom = "10px";
       commentBubble.style.border = `1px solid ${color}`;
-      commentBubble.style.borderRadius = "8px";
+      //commentBubble.style.borderRadius = "8px";
       commentBubble.style.backgroundColor = toRgba(color, 0.1); 
-      commentBubble.style.padding = "10px";
-      commentBubble.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
-      commentBubble.style.zIndex = "10001";
-
+      //commentBubble.style.padding = "10px";
+      //commentBubble.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
+      //commentBubble.style.zIndex = "50";
+      const userAndTime = document.createElement("div");
+      userAndTime.className = 'flex justify-between items-center mb-2';
       const usernameDisplay = document.createElement("p");
       usernameDisplay.textContent = `@${username}`;
-      usernameDisplay.style.fontWeight = "bold";
-      usernameDisplay.style.marginBottom = "5px";
+      usernameDisplay.className = 'font-medium text-emerald-600 mb-1';
+      //usernameDisplay.style.fontWeight = "bold";
+      //usernameDisplay.style.marginBottom = "5px";
 
+      userAndTime.appendChild(usernameDisplay);
       const commentText = document.createElement("p");
       commentText.textContent = comment;
 
@@ -195,12 +202,13 @@ function wrapTextInSpan(
       }) + ` ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
 
       const timestampDisplay = document.createElement("p");
+      timestampDisplay.className = 'text-xs text-gray-500 mt-1 mb-1';
       timestampDisplay.textContent = timestamp;
-      timestampDisplay.style.color = "#555";
-      timestampDisplay.style.fontSize = "12px";
-      timestampDisplay.style.marginTop = "5px";
-      timestampDisplay.style.marginBottom = "5px";
-
+      userAndTime.appendChild(timestampDisplay);
+     // timestampDisplay.style.color = "#555";
+      //timestampDisplay.style.fontSize = "12px";
+      //timestampDisplay.style.marginTop = "5px";
+      //timestampDisplay.style.marginBottom = "5px";
       const editButton = document.createElement("button");
       editButton.textContent = "Edit";
       editButton.style.position = "absolute"; 
@@ -237,16 +245,14 @@ function wrapTextInSpan(
         cancelButton.style.cursor = "pointer";
       
         commentBubble.innerHTML = ""; 
-        commentBubble.appendChild(usernameDisplay); 
-        commentBubble.appendChild(timestampDisplay); 
+        commentBubble.appendChild(userAndTime);
         commentBubble.appendChild(inputField);
         commentBubble.appendChild(saveButton);
         commentBubble.appendChild(cancelButton);
 
         cancelButton.addEventListener("click", () => {
           commentBubble.innerHTML = "";
-          commentBubble.appendChild(usernameDisplay);
-          commentBubble.appendChild(timestampDisplay);
+          commentBubble.appendChild(userAndTime);
           commentBubble.appendChild(commentText);
           commentBubble.appendChild(editButton);
         });
@@ -261,8 +267,7 @@ function wrapTextInSpan(
               })
               commentText.textContent = newText;
               commentBubble.innerHTML = ""; 
-              commentBubble.appendChild(usernameDisplay);
-              commentBubble.appendChild(timestampDisplay);
+              commentBubble.appendChild(userAndTime);
               commentBubble.appendChild(commentText);
               commentBubble.appendChild(editButton);
             }
@@ -277,8 +282,7 @@ function wrapTextInSpan(
         }); 
       });
 
-      commentBubble.appendChild(usernameDisplay);
-      commentBubble.appendChild(timestampDisplay);
+      commentBubble.appendChild(userAndTime);
       commentBubble.appendChild(commentText);
       if (username == loggedInUsername) {
         commentBubble.appendChild(editButton); 
