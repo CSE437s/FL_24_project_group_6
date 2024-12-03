@@ -112,6 +112,10 @@ async def get_current_active_user(
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
+@app.get("/search_users/", response_model=list[schemas.User])
+def search_users(query: str, db: Session = Depends(get_db)):
+    users = db.query(models.User).filter(models.User.username.ilike(f"%{query}%")).all()
+    return users
 
 @app.post("/token")
 async def login_for_access_token(
