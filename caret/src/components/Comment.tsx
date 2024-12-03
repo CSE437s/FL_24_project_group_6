@@ -1,23 +1,14 @@
 import { delete_comment } from "~api";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
-export const Comment = ({isUser, index, username, text, url, selectedText, id, refreshComments }) => {
+export const Comment = ({isUser, index, username, text, url, selectedText, id }) => {
     const [render, setRender] = useState(true);
-    const navigate = useNavigate();
     const handleDelete = async () => {
         const result = await delete_comment(id)
         if (result.status == 200) {
           setRender(false)
-          refreshComments()
         }
     }
-    const handleNavigate = () => {
-      // Passing props through state to the target route
-      navigate('/other_profile', {
-        state: { "user": username }
-      });
-    };
     if (render) {
       return(
         <div
@@ -25,7 +16,7 @@ export const Comment = ({isUser, index, username, text, url, selectedText, id, r
                     className="p-4 bg-slate-100 mt-2 rounded-lg drop-shadow"
                   >
                     <div className = "flex">
-                    <p className="font-medium text-emerald-600 hover:text-emerald-900 hover:cursor-pointer hover:underline" onClick={() => handleNavigate()}>
+                    <p className="font-medium text-emerald-600">
                      @{username}: 
                     </p>
                     <p className="ml-1">{text}</p>

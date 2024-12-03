@@ -21,10 +21,6 @@ from email.mime.multipart import MIMEMultipart
 from email.utils import formataddr
 from fastapi import BackgroundTasks
 
-
-
-
-
 # Dependency
 def get_db():
     db = SessionLocal()
@@ -36,9 +32,6 @@ def get_db():
 @lru_cache
 def get_settings():
     return config.Settings()
-
-
-
 
 models.Base.metadata.create_all(bind=engine)
 

@@ -1,261 +1,276 @@
-import type { PlasmoGetInlineAnchor } from "plasmo";
-import { sendToBackground } from "@plasmohq/messaging"
-import React, { useState } from 'react';
-import { wrap } from "module";
-import { start } from "repl";
+import { sendToBackground } from "@plasmohq/messaging";
 
+let comments = [];
+const userColor = "#FFD700";
+const followerColors = {};
+const colorPalette = [
+  "#ADD8E6",
+  "#90EE90",
+  "#FFB6C1",
+  "#FFA07A",
+  "#9370DB",
+];
 
-export {}
+const assignFollowerColor = (owner_id) => {
+  if (!owner_id) {
+    console.warn("Owner ID is missing. Assigning temporary unique ID.");
+    owner_id = `temp-${Date.now()}-${Math.random()}`; // Temporary unique ID
+  }
 
-let comments = []
+  if (!followerColors[owner_id]) {
+    const assignedIndex = Object.keys(followerColors).length % colorPalette.length;
+    followerColors[owner_id] = colorPalette[assignedIndex];
+    console.log(`Assigned new color to owner_id ${owner_id}: ${followerColors[owner_id]}`);
+  } else {
+    console.log(`Color already assigned to owner_id ${owner_id}: ${followerColors[owner_id]}`);
+  }
+
+  return followerColors[owner_id];
+};
 
 async function get_and_display_comments() {
   let response = await sendToBackground({
     name: "get_url_comments",
     body: {
-        url: location.href
-    }
-  })
-  const colors = ["#C8DB2A", "#FF7BAD", "#6FE4CC", "#185D79", "#EF4686"]
-  const new_comments = response.comments.filter(newComment => 
-    !comments.find(existingComment => existingComment.id === newComment.id)
-  );
-  console.log(new_comments)
-  //console.log("going")
-  for (let i = 0; i < new_comments.length; i++) {
-      //console.log("wrapped" + i)
-      wrapTextInSpan(new_comments[i].css_selector, new_comments[i].text, new_comments[i].text_offset_start, new_comments[i].text_offset_end, new_comments[i].text, new_comments[i].username, colors[new_comments[i].owner_id % colors.length])
-      //console.log("done")
-  }
-  comments = response.comments
-}
+      url: location.href,
+    },
+  });
 
+  const mainUserId = "main_user"; 
+
+  const commentsWithFollowerFlag = response.comments.map((comment) => {
+    return {
+      ...comment,
+      isFollowerComment: comment.owner_id !== mainUserId // If owner_id doesn't match the main user, it's a follower comment
+    };
+  });
+
+  console.log("Processed comments:", commentsWithFollowerFlag);
+
+  const new_comments = commentsWithFollowerFlag.filter(
+    (newComment) =>
+      !comments.find((existingComment) => existingComment.id === newComment.id)
+  );
+
+  for (let i = 0; i < new_comments.length; i++) {
+    const comment = new_comments[i];
+    const color =
+      comment.isFollowerComment
+        ? assignFollowerColor(comment.owner_id)
+        : userColor;
+
+    wrapTextInSpan(
+      comment.css_selector,
+      comment.text,
+      comment.text_offset_start,
+      comment.text_offset_end,
+      comment.text,
+      comment.username,
+      color
+    );
+  }
+
+  comments = commentsWithFollowerFlag;
+}
 
 window.addEventListener("load", async () => {
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    //console.log(message)
     if (message.action === "refresh_comments") {
-      get_and_display_comments()
+      get_and_display_comments();
     }
-  })
-    get_and_display_comments()
-  })
+  });
+  get_and_display_comments();
+});
 
-  const filterOutTooltips = (node) => {
-    if (node.nodeType === Node.TEXT_NODE || node.className !== "caretTooltip") {
-        return NodeFilter.FILTER_ACCEPT;
-    } else {
-        return NodeFilter.FILTER_REJECT;
-    }
-};
-  
-
-function wrapTextInSpan(cssSelector, selectedText, textOffsetStart, textOffsetEnd, comment, username, color) {
-  // Select the element using the CSS selector
-  const element = document.querySelector(cssSelector);
-
-  if (element) {
-    // Loop through child nodes to find the target text node
-    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, filterOutTooltips);
-    let currentNode: Node;
-    let currentOffset = 0;
-    let startNode, endNode, startOffset, endOffset;
-     // Find the starting text node
-     while ((currentNode = walker.nextNode())) {
-      if (currentNode.nodeType === Node.TEXT_NODE) {
-        const nodeLength = currentNode.textContent.length;
-
-        // Check if this node contains the start position
-        if (currentOffset + nodeLength >= textOffsetStart && !startNode) {
-          startNode = currentNode;
-          startOffset = textOffsetStart - currentOffset;
-        }
-  
-        // Check if this node contains the end position
-        if (currentOffset + nodeLength >= textOffsetEnd) {
-          endNode = currentNode;
-          endOffset = textOffsetEnd - currentOffset;
-          break;
-        }
-  
-        currentOffset += nodeLength;
-      }
-      
-    }
-    //console.log("start")
-    //console.log(startNode)
-    //console.log("end")
-    //console.log(endNode)
-    if (startNode && endNode) {
-      const range = document.createRange();
-      if (startNode === endNode || (startNode.nodeType === Node.TEXT_NODE && endNode.nodeType === Node.TEXT_NODE)) {
-        ////console.log("triggered")
-        range.setStart(startNode, startOffset);
-        range.setEnd(endNode, endOffset);
-      }
-      else {
-        const startWalker = document.createTreeWalker(startNode, NodeFilter.SHOW_TEXT, filterOutTooltips);
-        while (startNode.nodeType !== Node.TEXT_NODE) {
-          //get node after start node and set range to start there
-          startNode = startWalker.nextNode()
-        }
-        const endWalker = document.createTreeWalker(startNode, NodeFilter.SHOW_TEXT, filterOutTooltips);
-        while (endNode.nodeType !== Node.TEXT_NODE) {
-          //get node before end node and set range to end there
-          endNode = endWalker.previousNode()
-        }
-        range.setStart(startNode, 0);
-        range.setEnd(endNode, 0);
-      }
-
-
-
-
-      // Create the <span> element
-      const span = document.createElement("span");
-      span.textContent = selectedText;
-      span.classList.add("caretAnchorClass")
-      span.style.textDecorationLine = "underline";
-      span.style.textDecorationColor = color;  // Optional: Add some styling for the <span>
-      span.style.position = "relative"; // Necessary for positioning the tooltip
-      // Create the tooltip element
-      const tooltip = document.createElement("div");
-
-      // Structure the tooltip content with a username header and comment body
-      tooltip.innerHTML = `
-          <div style="font-weight: bold; margin-bottom: 5px; color: #6A8532;" id="tooltip-username">Username</div>
-          <div id="tooltip-comment">${comment}</div>
-      `;
-
-      // Apply styles to the tooltip box
-      tooltip.style.position = "absolute";
-      tooltip.style.backgroundColor = "white";
-      tooltip.style.border = "1px solid #ccc";
-      tooltip.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
-      tooltip.style.borderRadius = "8px";
-      tooltip.style.padding = "10px";
-      tooltip.style.maxWidth = "200px";  // Adjust the width if necessary
-      tooltip.style.zIndex = "1000";
-      tooltip.style.display = "none";  // Initially hidden
-      tooltip.className = "caretTooltip"
-
-      // You can dynamically set the username as well
-
-      tooltip.querySelector("#tooltip-username").textContent = "@" + username + ":";
-
-      // Position the tooltip above the span
-      span.onclick = function(event) {
-          ////console.log("clicked")
-          // Toggle tooltip visibility
-          tooltip.style.display = tooltip.style.display === "none" ? "block" : "none";
-
-          // Get the position of the span
-          tooltip.style.top = `-40px`; // Position above the span
-          tooltip.style.left = `0px`; // Align with the span
-        };
-   
-      
-      // Wrap the selected range in the span element
-      try {
-        range.surroundContents(span);
-        // Append the tooltip to the span
-          span.appendChild(tooltip);
-          //////console.log("Text successfully wrapped in span!");3
-      }
-      catch(e) {
-        //////console.log("issue wrapping:")
-        ////console.log(e)
-      }
-      
-         
-
-    } else {
-      console.error("Could not locate text range to wrap.");
-    }
-  }
+// Debounce function to limit the rate at which repositionCommentBubbles is called
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
 }
 
-  // function wrapTextInSpan(cssSelector, selectedText, textOffsetStart, textOffsetEnd, comment, username, color) {
-  //   // Select the element using the CSS selector
-  //   const element = document.querySelector(cssSelector);
-  
-  //   if (element) {
-  //     // Loop through child nodes to find the target text node
-  //     const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, filterOutTooltips);
-  //     let currentNode;
-  //     let currentIndex = 0;
-  
-  //     while (currentNode = walker.nextNode()) {
-  //       const textContent = currentNode.nodeValue;
-  
-  //       // If the selected text falls within this node
-  //       const nodeLength = textContent.length;
-  //       if (currentIndex + nodeLength >= textOffsetStart && currentIndex <= textOffsetEnd) {
-  //         // Split the text node into parts
-  //         const beforeText = textContent.substring(0, textOffsetStart - currentIndex);
-  //         const selectedSpanText = textContent.substring(textOffsetStart - currentIndex, textOffsetEnd - currentIndex);
-  //         const afterText = textContent.substring(textOffsetEnd - currentIndex);
-  
-  //         // Create the <span> element
-  //         const span = document.createElement("span");
-  //         span.textContent = selectedSpanText;
-  //         span.classList.add("caretAnchorClass")
-  //         span.style.textDecorationLine = "underline";
-  //         span.style.textDecorationColor = color;  // Optional: Add some styling for the <span>
-  //         span.style.position = "relative"; // Necessary for positioning the tooltip
+window.addEventListener("scroll", debounce(() => {}, 100));
 
-  //       // Create the tooltip element
-  //       const tooltip = document.createElement("div");
+function wrapTextInSpan(
+  cssSelector,
+  selectedText,
+  textOffsetStart,
+  textOffsetEnd,
+  comment,
+  username,
+  color
+) {
+  const toRgba = (color, alpha) => {
+    if (color.startsWith("#")) {
+      const bigint = parseInt(color.slice(1), 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    } else if (color.startsWith("rgb")) {
+      return color.replace("rgb", "rgba").replace(")", `, ${alpha})`);
+    }
+    return color;
+  };
 
-  //       // Structure the tooltip content with a username header and comment body
-  //       tooltip.innerHTML = `
-  //           <div style="font-weight: bold; margin-bottom: 5px; color: #333;" id="tooltip-username">Username</div>
-  //           <div style="color: #555;" id="tooltip-comment">${comment}</div>
-  //       `;
+  document.body.style.marginRight = "300px";
 
-  //       // Apply styles to the tooltip box
-  //       tooltip.style.position = "absolute";
-  //       tooltip.style.backgroundColor = "white";
-  //       tooltip.style.border = "1px solid #ccc";
-  //       tooltip.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
-  //       tooltip.style.borderRadius = "8px";
-  //       tooltip.style.padding = "10px";
-  //       tooltip.style.maxWidth = "200px";  // Adjust the width if necessary
-  //       tooltip.style.zIndex = "1000";
-  //       tooltip.style.display = "none";  // Initially hidden
-  //       tooltip.className = "caretTooltip"
+  let sidebar = document.getElementById("comment-sidebar");
+  let sidebarTitle;
+  if (!sidebar) {
+    sidebar = document.createElement("div");
+    sidebar.id = "comment-sidebar";
+    sidebar.style.position = "fixed";
+    sidebar.style.top = "0";
+    sidebar.style.right = "0";
+    sidebar.style.width = "300px";
+    sidebar.style.height = "100%";
+    sidebar.style.overflowY = "auto";
+    sidebar.style.scrollBehavior = "smooth";
+    sidebar.style.backgroundColor = "white";
+    sidebar.style.borderLeft = "1px solid #ddd";
+    sidebar.style.zIndex = "10000";
+    sidebar.style.padding = "10px";
+    document.body.appendChild(sidebar);
 
-  //       // You can dynamically set the username as well
+    sidebarTitle = document.createElement("div");
+    sidebarTitle.textContent = "Caret Comments";
+    sidebarTitle.style.fontSize = "18px";
+    sidebarTitle.style.fontWeight = "bold";
+    sidebarTitle.style.marginBottom = "10px";
+    sidebarTitle.style.borderBottom = "2px solid #ddd";
+    sidebarTitle.style.paddingBottom = "10px";
+    sidebarTitle.style.textAlign = "center";
+    sidebarTitle.style.backgroundColor = "#f8f9fa";
+    sidebarTitle.style.position = "sticky";
+    sidebarTitle.style.top = "0";
+    sidebarTitle.style.zIndex = "10001";
+    sidebar.appendChild(sidebarTitle);
+  } else {
+    sidebarTitle = sidebar.querySelector("div");
+  }
 
-  //       tooltip.querySelector("#tooltip-username").textContent = username + ":";
+  const elements = document.querySelectorAll(cssSelector);
+  elements.forEach((element, index) => {
+    const text = element.textContent;
+    if (text) {
+      const beforeText = text.slice(0, textOffsetStart);
+      const highlightedText = text.slice(textOffsetStart, textOffsetEnd);
+      const afterText = text.slice(textOffsetEnd);
 
-  //       // Position the tooltip above the span
-  //       span.onclick = function(event) {
-  //           //console.log("clicked")
-  //           // Toggle tooltip visibility
-  //           tooltip.style.display = tooltip.style.display === "none" ? "block" : "none";
-  
-  //           // Get the position of the span
-  //           tooltip.style.top = `-40px`; // Position above the span
-  //           tooltip.style.left = `0px`; // Align with the span
-  //         };
-  //       // Append the tooltip to the span
-  //       span.appendChild(tooltip);
-  
-  //         // Replace the original text node with before text, span, and after text
-  //         const parent = currentNode.parentNode;
-  //         parent.insertBefore(document.createTextNode(beforeText), currentNode);
-  //         parent.insertBefore(span, currentNode);
-  //         parent.insertBefore(document.createTextNode(afterText), currentNode);
-  
-  //         parent.removeChild(currentNode);  // Remove the original node
-  //         break;
-  //       }
-  
-  //       // Update current index for next node
-  //       currentIndex += nodeLength;
-  //     }
-  //   } else {
-  //     console.error("Element not found with the provided CSS selector.");
-  //   }
-  // }
+      const highlightId = `highlight-${Date.now()}-${index}`;
+
+      const highlightSpan = document.createElement("span");
+      highlightSpan.style.backgroundColor = toRgba(color, 0.3); 
+      highlightSpan.textContent = highlightedText;
+      highlightSpan.id = highlightId;
+
+      const newContent = document.createDocumentFragment();
+      newContent.appendChild(document.createTextNode(beforeText));
+      newContent.appendChild(highlightSpan);
+      newContent.appendChild(document.createTextNode(afterText));
+      element.innerHTML = "";
+      element.appendChild(newContent);
+
+      const commentBubble = document.createElement("div");
+      commentBubble.style.width = "280px";
+      commentBubble.style.marginBottom = "10px";
+      commentBubble.style.border = `1px solid ${color}`;
+      commentBubble.style.borderRadius = "8px";
+      commentBubble.style.backgroundColor = toRgba(color, 0.1); 
+      commentBubble.style.padding = "10px";
+      commentBubble.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
+      commentBubble.style.zIndex = "10001";
+
+      const usernameDisplay = document.createElement("p");
+      usernameDisplay.textContent = `@${username}`;
+      usernameDisplay.style.fontWeight = "bold";
+      usernameDisplay.style.marginBottom = "5px";
+
+      const commentText = document.createElement("p");
+      commentText.textContent = comment;
+
+      const timestamp = new Date().toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }) + ` ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+
+      const timestampDisplay = document.createElement("p");
+      timestampDisplay.textContent = timestamp;
+      timestampDisplay.style.color = "#555";
+      timestampDisplay.style.fontSize = "12px";
+      timestampDisplay.style.marginTop = "5px";
+      timestampDisplay.style.marginBottom = "5px";
+
+      commentBubble.appendChild(usernameDisplay);
+      commentBubble.appendChild(timestampDisplay);
+      commentBubble.appendChild(commentText);
+
+      sidebar.insertBefore(commentBubble, sidebarTitle.nextSibling);
+
+      highlightSpan.addEventListener("mouseover", () => {
+        highlightSpan.style.backgroundColor = toRgba(color, 1); 
+        commentBubble.style.backgroundColor = toRgba(color, 1); 
+        commentBubble.style.border = `2px solid ${color}`; 
+        commentBubble.style.boxShadow = "0 6px 12px rgba(0, 0, 0, 0.2)"; 
+      });
+
+      highlightSpan.addEventListener("mouseout", () => {
+        highlightSpan.style.backgroundColor = toRgba(color, 0.3); 
+        commentBubble.style.backgroundColor = toRgba(color, 0.1); 
+        commentBubble.style.border = `1px solid ${color}`; 
+        commentBubble.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)"; 
+      });
+
+      highlightSpan.addEventListener("click", () => {
+        commentBubble.scrollIntoView({ behavior: "smooth", block: "center" });
+        highlightSpan.style.backgroundColor = toRgba(color, 1); 
+        setTimeout(() => {
+          highlightSpan.style.backgroundColor = toRgba(color, 0.3); 
+        }, 2000);
+      });
+
+      commentBubble.addEventListener("mouseover", () => {
+        highlightSpan.style.backgroundColor = toRgba(color, 1); 
+        commentBubble.style.backgroundColor = toRgba(color, 1); 
+        commentBubble.style.border = `2px solid ${color}`; 
+        commentBubble.style.boxShadow = "0 6px 12px rgba(0, 0, 0, 0.2)"; 
+      })
+
+      commentBubble.addEventListener("mouseout", () => {
+        highlightSpan.style.backgroundColor = toRgba(color, 0.3); 
+        commentBubble.style.backgroundColor = toRgba(color, 0.1); 
+        commentBubble.style.border = `1px solid ${color}`; 
+        commentBubble.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)"; 
+      });
+
+      commentBubble.addEventListener("click", () => {
+        highlightSpan.scrollIntoView({ behavior: "smooth", block: "center" });
+        highlightSpan.style.backgroundColor = toRgba(color, 1); 
+        setTimeout(() => {
+          highlightSpan.style.backgroundColor = toRgba(color, 0.3); 
+        }, 2000);
+      });
+    }
+  });
+}
+
+function filterComments(showFollowersOnly) {
+  const sidebar = document.getElementById("comment-sidebar");
+  const commentBubbles = sidebar.querySelectorAll("div:not(:first-child)");
+
+  commentBubbles.forEach((bubble) => {
+    const usernameDisplay = bubble.querySelector("p:first-child");
+    const username = usernameDisplay.textContent.slice(1); // Remove '@' from username
+    const comment = comments.find((c) => c.username === username);
+
+    if (showFollowersOnly && !comment.isFollowerComment) {
+      (bubble as HTMLElement).style.display = "none";
+    } else {
+      (bubble as HTMLElement).style.display = "block";
+    }
+  });
+}
