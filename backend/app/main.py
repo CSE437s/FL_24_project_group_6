@@ -247,6 +247,12 @@ def reset_password(data: schemas.PasswordReset, db: Session = Depends(get_db), s
         settings=settings, data={"sub": user.username}, expires_delta=access_token_expires
     )
     return schemas.Token(access_token=access_token, token_type="bearer")
+
+@app.get("/search_users/", response_model=list[schemas.User])
+def search_users(query: str, db: Session = Depends(get_db)):
+    users = db.query(models.User).filter(models.User.username.ilike(f"%{query}%")).all()
+    return users
+
 # Friend routes
 @app.get("/users/me/followers", response_model=list[schemas.User])
 async def get_followers(

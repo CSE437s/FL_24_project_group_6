@@ -13,6 +13,7 @@ const get_my_comments_url = "http://localhost:8000/users/me/comments"
 const delete_comments_url = "http://localhost:8000/delete_comment"
 const follow_user_by_username = "http://localhost:8000/users/me/follow_by_username"
 const get_following_comments_url = "http://localhost:8000/users/me/following/comments"
+const search_users_url = "http://localhost:8000/users/search_users"
 
 export function fetch_token(username: string, password: string) {
     return axios.post(token_url, {
@@ -133,4 +134,15 @@ export async function follow_by_username(username: string) {
         headers: { Authorization: `Bearer ${access_token}` }
     };
     return axios.post(follow_user_by_username + "/" + username, {}, config)
+}
+
+export async function search_users(username: string) {
+    const storage = new Storage({
+        copiedKeyList: ["shield-modulation"],
+      })
+    const access_token = await storage.get("access_token")
+    const config = {
+        headers: { Authorization: `Bearer ${access_token}` }
+    };
+    return axios.get(search_users_url, {params: {username : username}, headers: config.headers})
 }
