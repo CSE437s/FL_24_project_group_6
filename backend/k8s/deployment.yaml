@@ -65,7 +65,7 @@ spec:
         app: caret
     spec:
       containers:
-        - image: gcr.io/caret-443604/backend:a2
+        - image: gcr.io/caret-443604/backend:a3
           name: caret
           command:
             - uvicorn
