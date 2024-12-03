@@ -43,6 +43,7 @@ async function get_and_display_comments() {
   })
   loggedInUsername = reponse2.username
 
+
   const mainUserId = "main_user"; 
 
   const commentsWithFollowerFlag = response.comments.map((comment) => {
@@ -66,6 +67,18 @@ async function get_and_display_comments() {
         ? assignFollowerColor(comment.owner_id)
         : userColor;
 
+    try{ 
+      let replies = await sendToBackground({
+        name: "get_reply_by_comment",
+        body: {
+          comment_id : comment.id,
+        },
+      });  
+    }
+    catch(error){
+      alert(error);
+    }
+    
     wrapTextInSpan(
       comment.css_selector,
       comment.text,
@@ -81,9 +94,13 @@ async function get_and_display_comments() {
   comments = commentsWithFollowerFlag;
 }
 
+
 window.addEventListener("load", async () => {
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "refresh_comments") {
+      get_and_display_comments();
+    }
+    else if (message.action == "refresh_replies"){
       get_and_display_comments();
     }
   });

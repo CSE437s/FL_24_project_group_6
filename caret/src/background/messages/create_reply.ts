@@ -12,7 +12,7 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
   console.log("sending message");
 
   chrome.tabs.sendMessage(req.sender.tab.id, {
-    action: "refresh_replies",
+    action: "create_reply",
     comment_id: req.body.comment_id,
   });
 
