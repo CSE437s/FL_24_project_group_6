@@ -230,7 +230,9 @@ def get_comments_from_following(db: Session, user_id: int):
 
     comments_with_username = db.query(models.Comment, models.User.username)\
         .join(models.User, models.Comment.owner_id == models.User.id)\
-        .filter(models.Comment.owner_id.in_(following_ids)).all()
+        .filter(models.Comment.owner_id.in_(following_ids))\
+        .order_by(models.Comment.created_at.desc())\
+        .all()
 
     joined_comments = []
     for comment, username in comments_with_username:

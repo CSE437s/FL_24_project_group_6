@@ -26,7 +26,7 @@ export const Home = ({ user }) => {
   }, []);
 
   if (loading) {
-    return <div className="text-center">Loading...</div>;
+    return <div></div>
   }
 
   if (error) {

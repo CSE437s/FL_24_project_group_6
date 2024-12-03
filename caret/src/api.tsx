@@ -14,6 +14,8 @@ const delete_comments_url = "http://localhost:8000/delete_comment"
 const edit_comments_url = "http://localhost:8000/edit_comments"
 const follow_user_by_username = "http://localhost:8000/users/me/follow_by_username"
 const get_following_comments_url = "http://localhost:8000/users/me/following/comments"
+const search_users_url = "http://localhost:8000/search_users"
+
 
 export function fetch_token(username: string, password: string) {
     return axios.post(token_url, {
@@ -42,6 +44,20 @@ export async function get_followers() {
     };
     return axios.get(followers_url, config)
 }
+export async function get_comments_by_username(username: string) {
+    const user_id = await get_user_id_from_username(username)
+    return get_comments_by_user_id(user_id)
+}
+export async function get_followers_by_username(username: string) {
+    const user_id = await get_user_id_from_username(username)
+    return get_followers_by_user_id(user_id)
+}
+export async function get_followers_by_user_id(user_id: string) {
+    const url = `http://localhost:8000/users/${user_id}/followers`
+    return axios.get(url)
+}
+
+
 
 export async function get_my_comments() {
     const storage = new Storage({
@@ -52,8 +68,36 @@ export async function get_my_comments() {
         headers: { Authorization: `Bearer ${access_token}` }
     };
     return axios.get(get_my_comments_url, config)
-
 }
+export async function get_comments_by_user_id(user_id: string) {
+    const url = "http://localhost:8000/users/" + user_id + "/comments"
+    return axios.get(url)
+}
+export async function get_username_from_user_id(user_id) {
+    const url = `http://localhost:8000/users/${user_id}/username`
+        const response = await axios.get(url);
+        return response.data; // This will be the username
+}
+export async function get_user_id_from_username(username) {
+    const url = `http://localhost:8000/users/${username}/id`
+        const response = await axios.get(url);
+        return response.data; // This will be the user_id
+}
+
+export async function unfollow_user_by_username(username) {
+    const storage = new Storage({
+        copiedKeyList: ["shield-modulation"], 
+      })
+    const access_token = await storage.get("access_token")
+    const config = {
+        headers: { Authorization: `Bearer ${access_token}` }
+    };
+    const user_id = await get_user_id_from_username(username)
+    const url = `http://localhost:8000/users/me/unfollow/${user_id}`
+    return axios.delete(url, config)
+}
+
+
 export async function get_following_comments() {
     const storage = new Storage({
         copiedKeyList: ["shield-modulation"], 
@@ -167,3 +211,8 @@ export async function get_logged_in_user(){
   };
   
 
+
+
+export async function search_users(username: string) {
+    return axios.get(search_users_url, {params: {query : username}})
+}
