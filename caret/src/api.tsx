@@ -11,6 +11,7 @@ const password_reset_request_url = "http://localhost:8000/password_reset_request
 const reset_password_url = "http://localhost:8000/reset-password/"
 const get_my_comments_url = "http://localhost:8000/users/me/comments"
 const delete_comments_url = "http://localhost:8000/delete_comment"
+const edit_comments_url = "http://localhost:8000/edit_comments"
 const follow_user_by_username = "http://localhost:8000/users/me/follow_by_username"
 const get_following_comments_url = "http://localhost:8000/users/me/following/comments"
 
@@ -112,6 +113,22 @@ export async function delete_comment(comment_id: number) {
     return axios.delete(url.toString(), config)
 }
 
+export async function edit_comments(comment_id: number, text: string) {
+    const storage = new Storage({
+        copiedKeyList: ["shield-modulation"], 
+      })
+    const access_token = await storage.get("access_token")
+    const config = {
+        headers: { Authorization: `Bearer ${access_token}` }
+    };
+    const edit_url = `${edit_comments_url}/${comment_id}`;
+    const data = {
+      text
+    };
+    return axios.put(edit_url.toString(), data, config);
+}  
+
+
 export async function get_url_comments(url : string) {
     return axios.get(get_comments_url, {params: {url : url}})
 }
@@ -134,3 +151,39 @@ export async function follow_by_username(username: string) {
     };
     return axios.post(follow_user_by_username + "/" + username, {}, config)
 }
+
+
+export const get_logged_in_user = async (): Promise<{ username: string } | null> => {
+    const accessToken = localStorage.getItem("accessToken"); 
+  
+    if (!accessToken) {
+      console.error("No access token found. User is not authenticated.");
+      return null; 
+    }
+  
+    try {
+      const response = await fetch(me_url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("API Error:", errorData);
+        throw new Error(
+          errorData.detail || `Failed to fetch username: ${response.statusText}`
+        );
+      }
+  
+      const data = await response.json(); 
+      return { username: data.username };
+    } catch (error) {
+      console.error("Error fetching username:", error);
+      return null; 
+    }
+  };
+  
+
