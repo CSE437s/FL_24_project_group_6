@@ -6,7 +6,6 @@ import React, { useState } from 'react';
 //     return document.querySelector('body')
 // }
 export {}
-const color = "#0f0";
 const renderedCommentIds = new Set();
 
 const userColors = {};
@@ -221,7 +220,7 @@ window.addEventListener("load", async () => {
       const closeButton = document.createElement("button");
       closeButton.textContent = "X";
       closeButton.style.position = "sticky"; 
-      closeButton.style.top = "10px";
+      closeButton.style.top = "0px";
       closeButton.style.right = "5px";
       closeButton.style.backgroundColor = "#ff0000";
       closeButton.style.color = "#fff";
@@ -302,7 +301,7 @@ window.addEventListener("load", async () => {
     commentBubble.appendChild(usernameDisplay);
     commentBubble.appendChild(timestampDisplay);
     commentBubble.appendChild(commentText);
-    commentBubble.appendChild(highlightText);
+    // commentBubble.appendChild(highlightText);
 
     return commentBubble
   }
@@ -313,8 +312,6 @@ window.addEventListener("load", async () => {
     sidebar.appendChild(commentBubble);
     return sidebar
 }
-
-
 
 // const InlineCommentHighlight = async () => {
 //     const [isMounted, setIsMounted] = useState(false)
