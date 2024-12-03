@@ -71,33 +71,6 @@ async function get_and_display_comments() {
   }
 
   comments = commentsWithFollowerFlag;
-  repositionCommentBubbles(); // Reposition comment bubbles after adding new comments
-}
-
-function repositionCommentBubbles() {
-
-  const sidebar = document.getElementById("comment-sidebar");
-  if (!sidebar) return;
-
-  const commentBubbles = Array.from(sidebar.children).filter(
-    (child) => child !== sidebar.firstChild
-  );
-
-  let lastBubbleBottom = 0;
-
-  commentBubbles.forEach((bubble) => {
-  
-    const bubbleRect = bubble.getBoundingClientRect();
-    const bubbleTop = bubbleRect.top + window.scrollY;
-
-    if (bubbleTop < lastBubbleBottom) {
-      const overlap = lastBubbleBottom - bubbleTop;
-      (bubble as HTMLElement).style.top = `${bubbleTop + overlap}px`;
-    }
-
-    lastBubbleBottom = bubble.getBoundingClientRect().bottom + window.scrollY + 10; // 10px margin
-
-  });
 }
 
 window.addEventListener("load", async () => {
@@ -118,7 +91,7 @@ function debounce(func, wait) {
   };
 }
 
-window.addEventListener("scroll", debounce(repositionCommentBubbles, 100));
+window.addEventListener("scroll", debounce(() => {}, 100));
 
 function wrapTextInSpan(
   cssSelector,
@@ -145,6 +118,7 @@ function wrapTextInSpan(
   document.body.style.marginRight = "300px";
 
   let sidebar = document.getElementById("comment-sidebar");
+  let sidebarTitle;
   if (!sidebar) {
     sidebar = document.createElement("div");
     sidebar.id = "comment-sidebar";
@@ -153,7 +127,7 @@ function wrapTextInSpan(
     sidebar.style.right = "0";
     sidebar.style.width = "300px";
     sidebar.style.height = "100%";
-    sidebar.style.overflowY = "hidden";
+    sidebar.style.overflowY = "auto";
     sidebar.style.scrollBehavior = "smooth";
     sidebar.style.backgroundColor = "white";
     sidebar.style.borderLeft = "1px solid #ddd";
@@ -161,7 +135,7 @@ function wrapTextInSpan(
     sidebar.style.padding = "10px";
     document.body.appendChild(sidebar);
 
-    const sidebarTitle = document.createElement("div");
+    sidebarTitle = document.createElement("div");
     sidebarTitle.textContent = "Caret Comments";
     sidebarTitle.style.fontSize = "18px";
     sidebarTitle.style.fontWeight = "bold";
@@ -174,6 +148,27 @@ function wrapTextInSpan(
     sidebarTitle.style.top = "0";
     sidebarTitle.style.zIndex = "10001";
     sidebar.appendChild(sidebarTitle);
+
+    const toggleSwitch = document.createElement("label");
+    toggleSwitch.classList.add("switch");
+    toggleSwitch.style.position = "absolute";
+    toggleSwitch.style.top = "10px";
+    toggleSwitch.style.right = "10px";
+
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.addEventListener("change", () => {
+      filterComments(input.checked);
+    });
+
+    const slider = document.createElement("span");
+    slider.classList.add("slider");
+
+    toggleSwitch.appendChild(input);
+    toggleSwitch.appendChild(slider);
+    sidebar.appendChild(toggleSwitch);
+  } else {
+    sidebarTitle = sidebar.querySelector("div");
   }
 
   const elements = document.querySelectorAll(cssSelector);
@@ -199,7 +194,6 @@ function wrapTextInSpan(
       element.appendChild(newContent);
 
       const commentBubble = document.createElement("div");
-      commentBubble.style.position = "absolute";
       commentBubble.style.width = "280px";
       commentBubble.style.marginBottom = "10px";
       commentBubble.style.border = `1px solid ${color}`;
@@ -233,18 +227,8 @@ function wrapTextInSpan(
       commentBubble.appendChild(usernameDisplay);
       commentBubble.appendChild(timestampDisplay);
       commentBubble.appendChild(commentText);
-      sidebar.appendChild(commentBubble);
 
-      const syncPosition = () => {
-        const rect = highlightSpan.getBoundingClientRect();
-        const pageOffset = window.scrollY + rect.top;
-        const relativeTop = pageOffset - window.scrollY;
-        
-        commentBubble.style.top = `${relativeTop}px`;
-      };
-
-      syncPosition();
-      window.addEventListener("scroll", syncPosition);
+      sidebar.insertBefore(commentBubble, sidebarTitle.nextSibling);
 
       highlightSpan.addEventListener("mouseover", () => {
         highlightSpan.style.backgroundColor = toRgba(color, 1); 
@@ -291,5 +275,21 @@ function wrapTextInSpan(
       });
     }
   });
+}
 
+function filterComments(showFollowersOnly) {
+  const sidebar = document.getElementById("comment-sidebar");
+  const commentBubbles = sidebar.querySelectorAll("div:not(:first-child)");
+
+  commentBubbles.forEach((bubble) => {
+    const usernameDisplay = bubble.querySelector("p:first-child");
+    const username = usernameDisplay.textContent.slice(1); // Remove '@' from username
+    const comment = comments.find((c) => c.username === username);
+
+    if (showFollowersOnly && !comment.isFollowerComment) {
+      (bubble as HTMLElement).style.display = "none";
+    } else {
+      (bubble as HTMLElement).style.display = "block";
+    }
+  });
 }
