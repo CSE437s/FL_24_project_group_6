@@ -1,3 +1,4 @@
+# StatefulSet for PostgreSQL Database
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -8,6 +9,7 @@ spec:
   selector:
     matchLabels:
       app: caret-db
+  serviceName: caret-db # StatefulSets require a headless service
   replicas: 1
   template:
     metadata:
@@ -29,18 +31,23 @@ spec:
           livenessProbe:
             tcpSocket:
               port: 5432
+            initialDelaySeconds: 30
+            periodSeconds: 10
 ---
+# Headless Service for StatefulSet
 apiVersion: v1
 kind: Service
 metadata:
   name: caret-db
 spec:
+  clusterIP: None
   selector:
     app: caret-db
   ports:
     - port: 5432
       targetPort: 5432
 ---
+# Deployment for Backend Application
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -48,18 +55,17 @@ metadata:
   labels:
     app: caret
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: caret
-  replicas: 1
   template:
     metadata:
       labels:
         app: caret
     spec:
       containers:
-        - image: backend:a1
-          imagePullPolicy: Never
+        - image: gcr.io/caret-443604/backend:a2
           name: caret
           command:
             - uvicorn
@@ -72,33 +78,43 @@ spec:
             - containerPort: 8000
           env:
             - name: DATABASE_URL
-              value: postgresql://admin:root@caret-db/test_db
+              value: postgresql://admin:root@caret-db.default.svc.cluster.local/test_db
+          readinessProbe:
+            httpGet:
+              path: /docs
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
 ---
+# Service for Backend Application
 apiVersion: v1
 kind: Service
 metadata:
   name: caret
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: caret
   ports:
     - port: 8000
       targetPort: 8000
 ---
+# Ingress for Exposing the Application via HTTP(S) Load Balancer
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: caret-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx" # GCP-specific ingress class
+    # Optional: Add SSL configuration or GCP-specific backend configurations
 spec:
   rules:
-    - host: localhost
-      http:
-          paths:
-            - pathType: Prefix
-              path: /
-              backend:
-                service:
-                  name: caret
-                  port:
-                    number: 8000
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: caret
+                port:
+                  number: 8000
