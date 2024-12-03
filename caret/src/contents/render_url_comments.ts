@@ -215,7 +215,7 @@ window.addEventListener("load", async () => {
       sidebarTitle.style.position = "sticky";
       sidebarTitle.style.top = "0";
       sidebarTitle.style.zIndex = "10100";
-      sidebar.appendChild(sidebarTitle);
+      
 
       const closeButton = document.createElement("button");
       closeButton.textContent = "X";
@@ -237,6 +237,7 @@ window.addEventListener("load", async () => {
         document.body.style.marginRight = "0px";
     });
       sidebar.appendChild(closeButton);
+      sidebar.appendChild(sidebarTitle);
     } else {
       sidebarTitle = sidebar.querySelector("div");
     }
