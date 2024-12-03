@@ -14,6 +14,9 @@ const delete_comments_url = "http://localhost:8000/delete_comment"
 const edit_comments_url = "http://localhost:8000/edit_comments"
 const follow_user_by_username = "http://localhost:8000/users/me/follow_by_username"
 const get_following_comments_url = "http://localhost:8000/users/me/following/comments"
+const create_reply_url = "http://localhost:8000/replies/";
+const get_replies_url = (comment_id) => `http://localhost:8000/comments/${comment_id}/replies`;
+
 
 export function fetch_token(username: string, password: string) {
     return axios.post(token_url, {
@@ -165,5 +168,31 @@ export async function get_logged_in_user(){
     return response.data;
 
   };
-  
+
+  export async function create_reply(comment_id: number, text: string) {
+    const storage = new Storage({
+        copiedKeyList: ["shield-modulation"],
+    });
+    const access_token = await storage.get("access_token");
+    const config = {
+        headers: { Authorization: `Bearer ${access_token}` },
+    };
+    const data = {
+        text: text,
+        comment_id: comment_id,
+    };
+    return axios.post(create_reply_url, data, config);
+}
+
+export async function get_replies(comment_id: number) {
+    const storage = new Storage({
+        copiedKeyList: ["shield-modulation"],
+    });
+    const access_token = await storage.get("access_token");
+    const config = {
+        headers: { Authorization: `Bearer ${access_token}` },
+    };
+    const url = get_replies_url(comment_id); 
+    return axios.get(url, config); 
+}
 

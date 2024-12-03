@@ -157,7 +157,9 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 @app.post("/create_comment", response_model=schemas.Comment)
 def create_comment_for_current_user(
-    current_user: Annotated[schemas.User, Depends(get_current_active_user)], comment: schemas.CommentCreate, db: Session = Depends(get_db)
+    current_user: Annotated[schemas.User, Depends(get_current_active_user)], 
+    comment: schemas.CommentCreate, 
+    db: Session = Depends(get_db)
 ):
     return db_utils.create_user_comment(db=db, comment=comment, user_id=current_user.id)
 
@@ -191,31 +193,34 @@ def get_all_url_comments(
 @app.get("/following_comments", response_model=list[schemas.CommentWithUserName])
 def get_following_url_comments(
     current_user: Annotated[schemas.User, Depends(get_current_active_user)],
-    url: str, db: Session = Depends(get_db)
+    url: str, 
+    db: Session = Depends(get_db)
 ):
     return db_utils.get_self_and_following_url_comments(db=db, url=url, user_id=current_user.id)
 
 @app.get("/self_comments", response_model=list[schemas.CommentWithUserName])
 def get_self_url_comments(
     current_user: Annotated[schemas.User, Depends(get_current_active_user)],
-    url: str, db: Session = Depends(get_db)
+    url: str, 
+    db: Session = Depends(get_db)
 ):
     return db_utils.get_self_url_comments(db=db, url=url, user_id=current_user.id)
 
-@app.post("/replies/", response_model=schemas.Reply)
+@app.post("/reply/", response_model=schemas.Reply)
 def create_reply(
+    current_user: Annotated[schemas.User, Depends(get_current_active_user)],
     reply: schemas.ReplyCreate, 
     db: Session = Depends(get_db), 
-    current_user: int = Depends(get_current_user)
 ):
     return db_utils.create_reply(db=db, reply=reply, user_id=current_user.id)
 
 @app.get("/comments/{comment_id}/replies", response_model=list[schemas.Reply])
 def get_replies_by_comment(
+    current_user: Annotated[schemas.User, Depends(get_current_active_user)],
     comment_id: int, 
     db: Session = Depends(get_db)
 ):
-    return db_utils.get_replies_by_comment(db=db, comment_id=comment_id)
+    return db_utils.get_replies_by_comment(db=db, comment_id=comment_id, user_id=current_user.id)
 
 @app.post("/password_reset_request/")
 def password_reset_request(
