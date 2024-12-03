@@ -318,6 +318,33 @@ window.addEventListener("load", async () => {
 
     userAndTime.appendChild(timestampDisplay);
 
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+    deleteButton.style.position = "absolute"; 
+    deleteButton.style.bottom = "30px"; 
+    deleteButton.style.right = "15px"; 
+    deleteButton.style.padding = "4px 8px";
+    deleteButton.style.backgroundColor = toRgba(color, 0.1);
+    deleteButton.style.color = "#000";
+    deleteButton.style.border = "1px solid #000";
+    deleteButton.style.borderRadius = "4px";
+    deleteButton.style.cursor = "pointer";
+    deleteButton.style.display = "block";
+    deleteButton.style.fontSize = "12px";
+
+      deleteButton.addEventListener("click", async () => {
+        try{
+          await sendToBackground({
+            name: "delete_comment", 
+            body: {comment_id: commentObj.id}
+          })
+        }
+        catch(error){
+          console.error("Failed to update comment:", error);
+          alert("Error updating comment. Please try again." + error);
+        }
+      });
+      
     const editButton = document.createElement("button");
       editButton.textContent = "Edit";
       editButton.style.position = "absolute"; 
