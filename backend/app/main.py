@@ -347,3 +347,8 @@ async def get_following_comments(
 ):
     """Get all comments made by the users the current user follows."""
     return db_utils.get_comments_from_following(db=db, user_id=current_user.id)
+
+@app.get("/search_users/", response_model=list[schemas.User])
+def search_users(query: str, db: Session = Depends(get_db)):
+    users = db.query(models.User).filter(models.User.username.ilike(f"%{query}%")).all()
+    return users

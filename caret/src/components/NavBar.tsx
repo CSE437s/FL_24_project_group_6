@@ -35,7 +35,7 @@ return(
         </li>
         <li>
           <NavLink 
-            to="/other_profile"
+            to="/explore"
             state={{ user: props.current_user }}
             className={({ isActive }) => 
             `flex justify-center border-b-2 py-2 ${
@@ -45,7 +45,7 @@ return(
             }`
           }
           >
-            My Comments
+            Explore
           </NavLink>
         </li>
       </ul>
