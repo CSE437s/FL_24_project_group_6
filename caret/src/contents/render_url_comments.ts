@@ -7,6 +7,7 @@ import "~style.css";
 // }
 export {}
 const renderedCommentIds = new Set();
+let loggedInUsername;
 
 const userColors = {};
 const colorPalette = [
@@ -53,6 +54,10 @@ async function get_and_display_comments(){
         url: location.href
     }
   })
+  let reponse2 = await sendToBackground({
+    name: "get_logged_in_user"
+  })
+  loggedInUsername = reponse2.username
 
   const comments = response.comments
   console.log(comments)
@@ -310,9 +315,96 @@ window.addEventListener("load", async () => {
     timestampDisplay.style.fontSize = "12px";
     timestampDisplay.style.marginTop = "5px";
     timestampDisplay.style.marginBottom = "5px";*/
+
     userAndTime.appendChild(timestampDisplay);
+
+    const editButton = document.createElement("button");
+      editButton.textContent = "Edit";
+      editButton.style.position = "absolute"; 
+      editButton.style.bottom = "10px"; 
+      editButton.style.right = "15px"; 
+      editButton.style.padding = "4px 8px";
+      editButton.style.backgroundColor = toRgba(color, 0.1);
+      editButton.style.color = "#000";
+      editButton.style.border = "1px solid #000";
+      editButton.style.borderRadius = "4px";
+      editButton.style.cursor = "pointer";
+      editButton.style.display = "block";
+      editButton.style.fontSize = "12px";
+
+      editButton.addEventListener("click", () => {
+        const inputField = document.createElement("textarea");
+        inputField.value = commentObj.text;
+        inputField.style.width = "100%";
+        inputField.style.marginBottom = "30px";
+      
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Save";
+        saveButton.style.padding = "5px 10px";
+        saveButton.style.right = "25px";
+        saveButton.style.bottom = "10px"
+        saveButton.style.border = "1px solid #000";
+        saveButton.style.borderRadius = "4px";
+        saveButton.style.cursor = "pointer";
+        saveButton.style.position = "absolute"
+        saveButton.style.marginTop = "5px"
+        saveButton.style.display = "inline-block";
+      
+        const cancelButton = document.createElement("button");
+        cancelButton.textContent = "Cancel";
+        cancelButton.style.padding = "5px 10px";
+        cancelButton.style.left = "25px";
+        cancelButton.style.bottom = "10px"
+        cancelButton.style.border = "1px solid #000";
+        cancelButton.style.borderRadius = "4px";
+        cancelButton.style.cursor = "pointer";
+        cancelButton.style.position = "absolute"
+        cancelButton.style.marginTop = "5px"
+      
+        commentBubble.innerHTML = ""; 
+        commentBubble.appendChild(userAndTime);
+        commentBubble.appendChild(inputField);
+        commentBubble.appendChild(saveButton);
+        commentBubble.appendChild(cancelButton);
+
+        cancelButton.addEventListener("click", () => {
+          commentBubble.innerHTML = "";
+          commentBubble.appendChild(userAndTime);
+          commentBubble.appendChild(commentText);
+          commentBubble.appendChild(editButton);
+        });
+
+        saveButton.addEventListener("click", async () => {
+          const newText = inputField.value.trim();
+          if(newText){ 
+            try{
+              await sendToBackground({
+                name: "edit_comments", 
+                body: {comment_id: commentObj.id, text: newText}
+              })
+              commentText.textContent = newText;
+              commentBubble.innerHTML = ""; 
+              commentBubble.appendChild(userAndTime);
+              commentBubble.appendChild(commentText);
+              commentBubble.appendChild(editButton);
+              commentObj.text = newText;
+            }
+            catch(error){
+              console.error("Failed to update comment:", error);
+              alert("Error updating comment. Please try again." + error);
+            }
+          } 
+          else{
+            alert("Comment text cannot be empty."); 
+          }
+        }); 
+      });
+    
     commentBubble.appendChild(userAndTime);
     commentBubble.appendChild(commentText);
+    if (commentObj.username == loggedInUsername) {
+      commentBubble.appendChild(editButton); 
+    }
     // commentBubble.appendChild(highlightText);
 
     return commentBubble
